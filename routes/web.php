@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\V1\Auth\AuthController;
+use App\Http\Controllers\V1\Auth\ForgotPasswordController;
+use App\Http\Controllers\V1\Auth\OtpController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\laravel_example\UserManagement;
 use App\Http\Controllers\dashboard\Analytics;
@@ -358,3 +361,53 @@ Route::get('/maps/leaflet', [Leaflet::class, 'index'])->name('maps-leaflet');
 // laravel example
 Route::get('/laravel/user-management', [UserManagement::class, 'UserManagement'])->name('laravel-example-user-management');
 Route::resource('/user-list', UserManagement::class);
+
+// -----------------------------
+// GUEST ROUTES
+// -----------------------------
+Route::middleware('guest')->group(function () {
+
+  // Register
+  Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+  Route::post('/register', [AuthController::class, 'register']);
+
+  // Login
+  Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+  Route::post('/login', [AuthController::class, 'login']);
+
+  // Forgot Password
+  Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
+    ->name('password.request');
+
+  Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+    ->name('password.email');
+
+  // Reset Password
+  Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])
+    ->name('password.reset');
+
+  Route::post('reset-password', [ForgotPasswordController::class, 'resetPassword'])
+    ->name('password.update');
+
+  // OTP Verification
+  Route::get('/verify-otp/{user}', [OtpController::class, 'showVerifyForm'])->name('verify.otp');
+  Route::post('/verify-otp/{user}', [OtpController::class, 'verifyOtp'])->name('otp.verify');
+
+  // Resend OTP
+  Route::post('/resend-otp/{user}', [OtpController::class, 'resendOtp'])->name('otp.resend');
+});
+
+
+// -----------------------------
+// AUTHENTICATED ROUTES
+// -----------------------------
+Route::middleware('auth')->group(function () {
+
+  // Dashboard
+  Route::get('/dashboard', fn() => view('dashboard'))
+    ->name('dashboard');
+
+  // Logout
+  Route::post('/logout', [AuthController::class, 'logout'])
+    ->name('logout');
+});
