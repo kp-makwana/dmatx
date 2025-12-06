@@ -294,6 +294,18 @@ document.addEventListener('DOMContentLoaded', function () {
             }
           },
 
+          pin: {
+            validators: {
+              notEmpty: {
+                message: 'PIN is required'
+              },
+              regexp: {
+                regexp: /^[0-9]{4}$/,
+                message: 'PIN must be exactly 4 digits'
+              }
+            }
+          },
+
           client_secret: {
             validators: {
               notEmpty: { message: 'Client Secret is required' }

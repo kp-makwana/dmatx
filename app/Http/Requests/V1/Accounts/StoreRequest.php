@@ -24,9 +24,10 @@ class StoreRequest extends FormRequest
       return [
         'nickname'      => 'required|string|max:255',
         'client_id'     => 'required|string|max:255',
+        'pin'           => 'required|digits:4',
         'api_key'       => 'required|string|max:255',
         'client_secret' => 'nullable|string|max:255',
-        'totp_secret'   => 'required|string|max:255',
+        'totp_secret'   => 'nullable|string|max:255',
       ];
     }
 }

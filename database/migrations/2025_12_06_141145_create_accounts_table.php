@@ -20,6 +20,7 @@ return new class extends Migration
         $table->string('nickname')->nullable();
         $table->string('account_name')->nullable();
         $table->string('client_id');             // Smart-API Client ID
+        $table->string('pin');             // Smart-API Client ID
         $table->string('api_key');               // API Key
         $table->string('client_secret')->nullable();
         $table->string('totp_secret')->nullable();
