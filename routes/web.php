@@ -408,11 +408,8 @@ Route::middleware('guest')->group(function () {
 // AUTHENTICATED ROUTES
 // -----------------------------
 Route::middleware('auth')->group(function () {
-
   // Dashboard
-  Route::get('/dashboard', [Analytics::class, 'index'])
-    ->name('dashboard');
-
+  Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
   // Logout
   Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
