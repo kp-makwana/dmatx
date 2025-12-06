@@ -25,6 +25,6 @@ class AngelLoginJob implements ShouldQueue
      */
     public function handle(): void
     {
-        
+
     }
 }

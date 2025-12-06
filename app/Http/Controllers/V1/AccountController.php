@@ -7,6 +7,7 @@ use App\Http\Requests\V1\Accounts\StoreRequest;
 use App\Models\V1\Account;
 use App\Services\AccountService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AccountController extends Controller
 {
@@ -73,7 +74,12 @@ class AccountController extends Controller
   public function store(StoreRequest $request)
   {
     $this->authorize('create',Account::class);
-    $this->service->create($request->validated());
+    $validatedData = $request->validated();
+    $exists = Account::where('user_id',Auth::id())->where('client_id',$validatedData['client_id'])->exists();
+    if ($exists){
+      return redirect()->back()->with('error', "Account already added");
+    }
+    $this->service->create($validatedData);
 
     return redirect()->back()->with('success', "Account added successfully,\n Take few second for angle login");
   }
