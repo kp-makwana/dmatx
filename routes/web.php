@@ -165,6 +165,7 @@ use App\Http\Controllers\maps\Leaflet;
 
 // Main Page Route
 Route::get('/', [Analytics::class, 'index'])->name('dashboard-analytics');
+Route::get('/', [Analytics::class, 'index'])->name('home');
 Route::get('/dashboard/analytics', [Analytics::class, 'index'])->name('dashboard-analytics');
 Route::get('/dashboard/crm', [Crm::class, 'index'])->name('dashboard-crm');
 // locale
@@ -394,7 +395,7 @@ Route::middleware('guest')->group(function () {
   Route::post('/verify-otp/{user}', [OtpController::class, 'verifyOtp'])->name('otp.verify');
 
   // Resend OTP
-  Route::post('/resend-otp/{user}', [OtpController::class, 'resendOtp'])->name('otp.resend');
+  Route::get('/resend-otp/{user}', [OtpController::class, 'resendOtp'])->name('otp.resend');
 });
 
 
@@ -404,7 +405,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
 
   // Dashboard
-  Route::get('/dashboard', fn() => view('dashboard'))
+  Route::get('/dashboard', [Analytics::class, 'index'])
     ->name('dashboard');
 
   // Logout

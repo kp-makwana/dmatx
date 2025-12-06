@@ -88,6 +88,54 @@ class LanguageLineSeeder extends Seeder
         'en' => 'Your password has been reset successfully.',
         'hi' => 'आपका पासवर्ड सफलतापूर्वक रीसेट किया गया है।',
       ],
+      'register_title' => [
+        'en' => 'Adventure starts here 🚀',
+        'hi' => 'यात्रा यहाँ से शुरू होती है 🚀',
+      ],
+      'register_subtitle' => [
+        'en' => 'Create your account and enjoy the app!',
+        'hi' => 'अपना खाता बनाएं और ऐप का आनंद लें!',
+      ],
+      'name' => [
+        'en' => 'Name',
+        'hi' => 'नाम',
+      ],
+      'enter_name' => [
+        'en' => 'Enter your name',
+        'hi' => 'अपना नाम दर्ज करें',
+      ],
+      'email' => [
+        'en' => 'Email',
+        'hi' => 'ईमेल',
+      ],
+      'enter_email' => [
+        'en' => 'Enter your email',
+        'hi' => 'अपना ईमेल दर्ज करें',
+      ],
+      'password' => [
+        'en' => 'Password',
+        'hi' => 'पासवर्ड',
+      ],
+      'agree_terms' => [
+        'en' => 'I agree to',
+        'hi' => 'मैं सहमत हूँ',
+      ],
+      'privacy_policy' => [
+        'en' => 'privacy policy & terms',
+        'hi' => 'गोपनीयता नीति और शर्तें',
+      ],
+      'sign_up' => [
+        'en' => 'Sign up',
+        'hi' => 'साइन अप',
+      ],
+      'already_account' => [
+        'en' => 'Already have an account?',
+        'hi' => 'पहले से एक खाता है?',
+      ],
+      'sign_in' => [
+        'en' => 'Sign in instead',
+        'hi' => 'साइन इन करें',
+      ],
     ];
   }
 

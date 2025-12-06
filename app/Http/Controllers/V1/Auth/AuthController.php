@@ -19,12 +19,14 @@ class AuthController extends Controller
 
   public function showRegisterForm()
   {
-    return view('auth.register');
+    $pageConfigs = ['myLayout' => 'blank'];
+    return view('auth.register', ['pageConfigs' => $pageConfigs]);
   }
 
   public function showLoginForm()
   {
-    return view('auth.login');
+    $pageConfigs = ['myLayout' => 'blank'];
+    return view('auth.login',['pageConfigs' => $pageConfigs]);
   }
 
   /**

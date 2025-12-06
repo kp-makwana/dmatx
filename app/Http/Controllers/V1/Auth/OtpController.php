@@ -22,7 +22,8 @@ class OtpController extends Controller
    */
   public function showVerifyForm(User $user)
   {
-    return view('auth.verify-otp', compact('user'));
+    $pageConfigs = ['myLayout' => 'blank'];
+    return view('auth.verify-otp', compact('user','pageConfigs'));
   }
 
   /**
