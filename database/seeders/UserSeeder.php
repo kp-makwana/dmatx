@@ -19,14 +19,14 @@ class UserSeeder extends Seeder
 
         $admin = new User();
         $admin->name = 'Super Admin';
-        $admin->email = 'admin@example.com';
-        $admin->password = Hash::make('password');
+        $admin->email = 'admin@gmail.com';
+        $admin->password = Hash::make('123456');
         $admin->email_verified_at = now();
         $admin->save();
 
         $admin->assignRole('admin');
 
-        $this->command->info('Admin user created: admin@example.com / password');
+        $this->command->info('Admin user created: admin@gmail.com / password');
       } else {
         $this->command->warn('Admin user already exists — skipping admin creation.');
       }
@@ -48,7 +48,7 @@ class UserSeeder extends Seeder
             $user = new User();
             $user->name = "Test User {$i}";
             $user->email = "user{$i}@example.com";
-            $user->password = Hash::make('password');
+            $user->password = Hash::make('123456');
             $user->email_verified_at = now();
             $user->save();
 
