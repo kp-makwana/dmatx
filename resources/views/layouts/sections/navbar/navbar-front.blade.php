@@ -1,5 +1,6 @@
 @php
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 $currentRouteName = Route::currentRouteName();
 $activeRoutes = ['front-pages-pricing', 'front-pages-payment', 'front-pages-checkout', 'front-pages-help-center'];
 $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
@@ -22,7 +23,7 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
           <i class="icon-base ti tabler-menu-2 icon-lg align-middle text-heading fw-medium"></i>
         </button>
         <!-- Mobile menu toggle: End-->
-        <a href="{{ url('front-pages/landing') }}" class="app-brand-link">
+        <a href="{{ route('home') }}" class="app-brand-link">
           <span class="app-brand-logo demo">@include('_partials.macros')</span>
           <span class="app-brand-text demo menu-text fw-bold ms-2 ps-1">{{ config('variables.templateName') }}</span>
         </a>
@@ -38,19 +39,19 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
             <a class="nav-link fw-medium" aria-current="page"
-              href="{{ url('front-pages/landing') }}#landingHero">Home</a>
+              href="{{ route('home') }}#landingHero">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingFeatures">Features</a>
+            <a class="nav-link fw-medium" href="{{ route('home') }}#landingFeatures">Features</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingTeam">Team</a>
+            <a class="nav-link fw-medium" href="{{ route('home') }}#landingTeam">Team</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingFAQ">FAQ</a>
+            <a class="nav-link fw-medium" href="{{ route('home') }}#landingFAQ">FAQ</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingContact">Contact
+            <a class="nav-link fw-medium" href="{{ route('home') }}#landingContact">Contact
               us</a>
           </li>
           <li class="nav-item mega-dropdown {{ $activeClass }}">
@@ -239,7 +240,7 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link fw-medium" href="{{ url('/') }}" target="_blank">Admin</a>
+            <a class="nav-link fw-medium" href="{{ route('dashboard') }}" target="_blank">Admin</a>
           </li>
         </ul>
       </div>
@@ -281,12 +282,67 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
         @endif
 
         <!-- navbar button: Start -->
-        <li>
-          <a href="{{ url('/auth/login-cover') }}" class="btn btn-primary" target="_blank"><span
-              class="icon-base ti tabler-login scaleX-n1-rtl me-md-1"></span><span
-              class="d-none d-md-block">Login/Register</span></a>
-        </li>
-        <!-- navbar button: End -->
+          {{-- If user is NOT logged in, show Login/Register button --}}
+          @guest
+            <li>
+              <a href="{{ url('/auth/login-cover') }}" class="btn btn-primary" target="_blank">
+                <span class="icon-base ti tabler-login scaleX-n1-rtl me-md-1"></span>
+                <span class="d-none d-md-block">Login/Register</span>
+              </a>
+            </li>
+          @endguest
+
+          {{-- If user IS logged in, show avatar dropdown --}}
+          @auth
+            <li class="nav-item navbar-dropdown dropdown-user dropdown">
+              <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
+                <div class="avatar avatar-online">
+                  <img src="{{ Auth::user()->profile_photo_url }}" class="rounded-circle" alt="User Avatar" />
+                </div>
+              </a>
+
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item mt-0" href="{{ route('profile.show') }}">
+                    <div class="d-flex align-items-center">
+                      <div class="flex-shrink-0 me-2">
+                        <div class="avatar avatar-online">
+                          <img src="{{ Auth::user()->profile_photo_url }}" class="rounded-circle" alt="User Avatar" />
+                        </div>
+                      </div>
+                      <div class="flex-grow-1">
+                        <h6 class="mb-0">{{ Auth::user()->name }}</h6>
+                        <small class="text-body-secondary">Admin</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+
+                <li><div class="dropdown-divider my-1 mx-n2"></div></li>
+
+                <li>
+                  <a class="dropdown-item" href="{{ route('profile.show') }}">
+                    <i class="icon-base ti tabler-user me-3 icon-md"></i><span>My Profile</span>
+                  </a>
+                </li>
+
+                <li><div class="dropdown-divider my-1 mx-n2"></div></li>
+
+                {{-- Logout --}}
+                <li>
+                  <a class="dropdown-item" href="{{ route('logout') }}"
+                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="icon-base bx bx-power-off icon-md me-3"></i><span>Logout</span>
+                  </a>
+                  <form method="POST" id="logout-form" action="{{ route('logout') }}">
+                    @csrf
+                  </form>
+                </li>
+              </ul>
+            </li>
+          @endauth
+
+          <!-- navbar button: End -->
       </ul>
       <!-- Toolbar: End -->
     </div>

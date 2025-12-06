@@ -72,4 +72,9 @@ class User extends Authenticatable implements HasMedia
   {
     $this->addMediaCollection('avatar')->singleFile();
   }
+
+  public function getProfilePhotoUrlAttribute()
+  {
+    return asset('assets/img/avatars/1.png');
+  }
 }

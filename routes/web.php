@@ -3,6 +3,7 @@
 use App\Http\Controllers\V1\Auth\AuthController;
 use App\Http\Controllers\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\V1\Auth\OtpController;
+use App\Http\Controllers\V1\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\laravel_example\UserManagement;
 use App\Http\Controllers\dashboard\Analytics;
@@ -165,8 +166,8 @@ use App\Http\Controllers\maps\Leaflet;
 
 Route::middleware('auth')->group(function () {
 // Main Page Route
-Route::get('/', [Analytics::class, 'index'])->name('dashboard-analytics');
-Route::get('/', [Analytics::class, 'index'])->name('home');
+/*Route::get('/', [Analytics::class, 'index'])->name('dashboard-analytics');
+Route::get('/', [Analytics::class, 'index'])->name('home');*/
 Route::get('/dashboard/analytics', [Analytics::class, 'index'])->name('dashboard-analytics');
 Route::get('/dashboard/crm', [Crm::class, 'index'])->name('dashboard-crm');
 // locale
@@ -416,3 +417,5 @@ Route::middleware('auth')->group(function () {
   Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
 });
+
+Route::get('/',[HomeController::class,'index'])->name('home');
