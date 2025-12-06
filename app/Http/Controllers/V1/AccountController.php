@@ -3,11 +3,20 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\Accounts\StoreRequest;
 use App\Models\V1\Account;
+use App\Services\AccountService;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {
+
+  protected AccountService $service;
+
+  public function __construct(AccountService $service)
+  {
+    $this->service = $service;
+  }
   public function index()
   {
     $pageConfigs = ['myLayout' => 'horizontal'];
@@ -59,5 +68,13 @@ class AccountController extends Controller
         ];
       }),
     ]);
+  }
+
+  public function store(StoreRequest $request)
+  {
+    $this->authorize('create',Account::class);
+    $this->service->create($request->validated());
+
+    return redirect()->back()->with('success', "Account added successfully,\n Take few second for angle login");
   }
 }

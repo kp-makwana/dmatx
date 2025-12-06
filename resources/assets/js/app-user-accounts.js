@@ -59,10 +59,19 @@ document.addEventListener('DOMContentLoaded', function () {
       {
         targets: 2,
         orderable: false,
-        render: (data, type, full) =>
-          `<span class="badge ${statusObj[full.status].class}">
-             ${statusObj[full.status].title}
-           </span>`
+        render: (data, type, full) => {
+          const status = full.status ?? 'unknown';
+
+          const statusData = statusObj[status] || {
+            class: 'bg-secondary',
+            title: 'Unknown'
+          };
+
+          return `
+      <span class="badge ${statusData.class}">
+        ${statusData.title}
+      </span>`;
+        }
       },
 
       // ACTIVE BADGE
@@ -248,3 +257,83 @@ setTimeout(() => {
     });
   });
 }, 100);
+
+'use strict';
+
+document.addEventListener('DOMContentLoaded', function () {
+  (() => {
+    const addAccountForm = document.querySelector('#addAccountForm');
+
+    if (addAccountForm && typeof FormValidation !== 'undefined') {
+      FormValidation.formValidation(addAccountForm, {
+        fields: {
+
+          nickname: {
+            validators: {
+              notEmpty: { message: 'Please enter an account nickname' },
+              stringLength: {
+                min: 2,
+                message: 'Nickname must be at least 2 characters'
+              }
+            }
+          },
+
+          client_id: {
+            validators: {
+              notEmpty: { message: 'Client ID is required' },
+              stringLength: {
+                min: 4,
+                message: 'Client ID must be at least 4 characters'
+              }
+            }
+          },
+
+          api_key: {
+            validators: {
+              notEmpty: { message: 'API Key is required' }
+            }
+          },
+
+          client_secret: {
+            validators: {
+              notEmpty: { message: 'Client Secret is required' }
+            }
+          },
+
+          totp_secret: {
+            validators: {
+              notEmpty: { message: 'TOTP Secret is required' },
+              stringLength: {
+                min: 3,
+                message: 'TOTP Secret must be at least 3 characters'
+              }
+            }
+          }
+
+        },
+
+        plugins: {
+          trigger: new FormValidation.plugins.Trigger(),
+          bootstrap5: new FormValidation.plugins.Bootstrap5({
+            eleValidClass: '',
+            rowSelector: function (field, ele) {
+              return '.col-12, .col-md-6';
+            }
+          }),
+          submitButton: new FormValidation.plugins.SubmitButton(),
+          defaultSubmit: new FormValidation.plugins.DefaultSubmit(),
+          autoFocus: new FormValidation.plugins.AutoFocus()
+        },
+
+        init: instance => {
+          instance.on('plugins.message.placed', e => {
+            // Fix placement inside input-groups
+            if (e.element.parentElement.classList.contains('input-group')) {
+              e.element.parentElement.insertAdjacentElement('afterend', e.messageElement);
+            }
+          });
+        }
+      });
+    }
+  })();
+});

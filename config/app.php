@@ -126,6 +126,7 @@ return [
     'aliases' => [
         // Other aliases...
         'Helper' => App\Helpers\Helpers::class,
+        'Config' => Illuminate\Support\Facades\Config::class,
     ],
 
 ];

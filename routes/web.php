@@ -418,6 +418,7 @@ Route::middleware('auth')->group(function () {
   Route::group(['prefix' => 'accounts','as' => 'accounts.'], function () {
     Route::get('/', [AccountController::class, 'index'])->name('index');
     Route::get('list', [AccountController::class, 'list'])->name('list');
+    Route::post('store', [AccountController::class, 'store'])->name('store');
   });
 
 });
