@@ -4,13 +4,38 @@
       "name": "Dashboards",
       "icon": "menu-icon icon-base ti tabler-smart-home",
       "slug": "dashboard",
-      "url": "dashboard"
-    },
-    {
-      "name": "accounts",
-      "icon": "menu-icon icon-base ti tabler-users",
-      "slug": "accounts",
-      "url": "accounts"
+      "submenu": [
+        {
+          "url": "/",
+          "name": "Analytics",
+          "icon": "menu-icon icon-base ti tabler-chart-pie-2",
+          "slug": "dashboard-analytics"
+        },
+        {
+          "url": "dashboard/crm",
+          "name": "CRM",
+          "icon": "menu-icon icon-base ti tabler-vector-bezier-circle",
+          "slug": "dashboard-crm"
+        },
+        {
+          "url": "app/ecommerce/dashboard",
+          "name": "eCommerce",
+          "icon": "menu-icon icon-base ti tabler-shopping-cart",
+          "slug": "app-ecommerce-dashboard"
+        },
+        {
+          "url": "app/logistics/dashboard",
+          "name": "Logistics",
+          "icon": "menu-icon icon-base ti tabler-truck",
+          "slug": "app-logistics-dashboard"
+        },
+        {
+          "url": "app/academy/dashboard",
+          "name": "Academy",
+          "icon": "menu-icon icon-base ti tabler-book",
+          "slug": "app-academy-dashboard"
+        }
+      ]
     },
     {
       "name": "Layouts",
@@ -340,6 +365,18 @@
               "slug": "app-access-permission"
             }
           ]
+        },
+        {
+          "name": "Laravel Example",
+          "icon": "menu-icon icon-base ti tabler-brand-php",
+          "slug": "laravel-example",
+          "submenu": [
+            {
+              "url": "laravel/user-management",
+              "name": "User Management",
+              "slug": "laravel-example-user-management"
+            }
+          ]
         }
       ]
     },
@@ -489,6 +526,127 @@
               "name": "Not Authorized",
               "slug": "pages-misc-not-authorized",
               "target": "_blank"
+            }
+          ]
+        },
+        {
+          "name": "Authentications",
+          "icon": "menu-icon icon-base ti tabler-lock",
+          "slug": "auth",
+          "submenu": [
+            {
+              "name": "Login",
+              "slug": "auth-login",
+              "submenu": [
+                {
+                  "url": "auth/login-basic",
+                  "name": "Basic",
+                  "slug": "auth-login-basic",
+                  "target": "_blank"
+                },
+                {
+                  "url": "auth/login-cover",
+                  "name": "Cover",
+                  "slug": "auth-login-cover",
+                  "target": "_blank"
+                }
+              ]
+            },
+            {
+              "name": "Register",
+              "slug": "auth-register",
+              "submenu": [
+                {
+                  "url": "auth/register-basic",
+                  "name": "Basic",
+                  "slug": "auth-register-basic",
+                  "target": "_blank"
+                },
+                {
+                  "url": "auth/register-cover",
+                  "name": "Cover",
+                  "slug": "auth-register-cover",
+                  "target": "_blank"
+                },
+                {
+                  "url": "auth/register-multisteps",
+                  "name": "Multi-steps",
+                  "slug": "auth-register-multisteps",
+                  "target": "_blank"
+                }
+              ]
+            },
+            {
+              "name": "Verify Email",
+              "slug": "auth-verify-email",
+              "submenu": [
+                {
+                  "url": "auth/verify-email-basic",
+                  "name": "Basic",
+                  "slug": "auth-verify-email-basic",
+                  "target": "_blank"
+                },
+                {
+                  "url": "auth/verify-email-cover",
+                  "name": "Cover",
+                  "slug": "auth-verify-email-cover",
+                  "target": "_blank"
+                }
+              ]
+            },
+            {
+              "name": "Reset Password",
+              "slug": "auth-reset-password",
+              "submenu": [
+                {
+                  "url": "auth/reset-password-basic",
+                  "name": "Basic",
+                  "slug": "auth-reset-password-basic",
+                  "target": "_blank"
+                },
+                {
+                  "url": "auth/reset-password-cover",
+                  "name": "Cover",
+                  "slug": "auth-reset-password-cover",
+                  "target": "_blank"
+                }
+              ]
+            },
+            {
+              "name": "Forgot Password",
+              "slug": "auth-forgot-password",
+              "submenu": [
+                {
+                  "url": "auth/forgot-password-basic",
+                  "name": "Basic",
+                  "slug": "auth-forgot-password-basic",
+                  "target": "_blank"
+                },
+                {
+                  "url": "auth/forgot-password-cover",
+                  "name": "Cover",
+                  "slug": "auth-forgot-password-cover",
+                  "target": "_blank"
+                }
+              ]
+            },
+            {
+              "name": "Two Steps",
+              "slug": "auth-two-steps",
+              "submenu": [
+                {
+                  "url": "auth/two-steps-basic",
+                  "name": "Basic",
+                  "slug": "auth-two-steps-basic",
+                  "target": "_blank"
+                },
+                {
+                  "url": "auth/two-steps-cover",
+                  "name": "Cover",
+                  "slug": "auth-two-steps-cover",
+                  "target": "_blank"
+                }
+              ]
             }
           ]
         },
@@ -945,6 +1103,23 @@
           "icon": "menu-icon icon-base ti tabler-map",
           "name": "Leaflet Maps",
           "slug": "maps-leaflet"
+        }
+      ]
+    },
+    {
+      "name": "Multi Level",
+      "icon": "menu-icon icon-base ti tabler-layout-board",
+      "slug": "multi-level",
+      "submenu": [
+        {
+          "name": "Level 2",
+          "slug": "level-2",
+          "submenu": [
+            {
+              "name": "Level 3",
+              "slug": "level-3"
+            }
+          ]
         }
       ]
     }
