@@ -380,8 +380,10 @@ Route::middleware('guest')->group(function () {
   Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
     ->name('password.request');
 
-  Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+  Route::match(['get','post'],'forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
     ->name('password.email');
+
+  Route::get('/password/verify-email', [ForgotPasswordController::class, 'verifyEmailNotice'])->name('password.verify.notice');
 
   // Reset Password
   Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])

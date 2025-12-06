@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\PasswordService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -34,7 +35,17 @@ class ForgotPasswordController extends Controller
       return back()->withErrors(['email' => __('password.reset_link_failed')]);
     }
 
-    return back()->with('success', __('password.reset_link_sent'));
+    return redirect()->route('password.verify.notice',['email'=> $request->email]);
+  }
+
+  public function verifyEmailNotice(Request $request)
+  {
+      $email = $request->input('email');
+      $user = User::where('email', $email)->first();
+      if (empty($user)){
+        return redirect()->route('login');
+      }
+      return view('auth.verify-email', ['pageConfigs' => ['myLayout' => 'blank'], 'email' => $email]);
   }
 
   public function showResetForm($token, Request $request)
