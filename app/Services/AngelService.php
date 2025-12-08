@@ -69,6 +69,8 @@ class AngelService
         $account->last_login_at = Carbon::now();
         $account->token_expiry = self::getTokenExpiry($data['refreshToken']);
 
+        $account = $this->setUserAccountName($account);
+
         $account->save();
 
         activity()
@@ -138,5 +140,57 @@ class AngelService
     }
     $input = str_replace(['-', '_'], ['+', '/'], $input);
     return base64_decode($input);
+  }
+
+  public function setUserAccountName($account)
+  {
+    try {
+      $endpoint = $this->baseUrl . "/rest/secure/angelbroking/user/v1/getProfile";
+
+      $headers = [
+        'Content-Type'      => 'application/json',
+        'Accept'            => 'application/json',
+        'X-UserType'        => 'USER',
+        'X-SourceID'        => 'WEB',
+        'X-ClientLocalIP'   => request()->ip(),
+        'X-ClientPublicIP'  => request()->ip(),
+        'X-MACAddress'      => '00:00:00:00:00:00',
+        'X-PrivateKey'      => $account->api_key,
+        'Authorization'     => 'Bearer ' . $account->session_token,
+      ];
+
+      $response = $this->client->get($endpoint, [
+        'headers' => $headers
+      ]);
+
+      $result = json_decode($response->getBody(), true);
+
+      if ($result['status'] && !empty($result['data']['name'])) {
+
+        // Save user full name if needed
+        $account->account_name = $result['data']['name'];
+
+        // Log activity
+        activity()
+          ->performedOn($account)
+          ->withProperties([
+            'clientcode' => $result['data']['clientcode'],
+            'name'       => $result['data']['name'],
+          ])
+          ->log('Fetched Angel user profile');
+      }
+
+    } catch (\Exception $e) {
+      activity()
+        ->performedOn($account)
+        ->withProperties([
+          'client_id' => $account->client_id,
+          'error' => $e->getMessage(),
+        ])
+        ->log('Angel API: getProfile failed');
+
+      Log::error("Angel getProfile Error: " . $e->getMessage());
+    }
+    return $account;
   }
 }
