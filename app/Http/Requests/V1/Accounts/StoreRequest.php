@@ -27,7 +27,7 @@ class StoreRequest extends FormRequest
         'pin'           => 'required|max:4',
         'api_key'       => 'required|string|max:255',
         'client_secret' => 'nullable|string|max:255',
-        'totp_secret'   => 'nullable|string|max:255',
+        'totp_secret'   => 'required|string|max:255',
       ];
     }
 }

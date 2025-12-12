@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'DataTables - Tables')
+@section('title', 'Accounts')
 
 <!-- Vendor Styles -->
 @section('vendor-style')
@@ -52,24 +52,12 @@
       </nav>
 
       <div class="d-flex gap-2">
-        <!-- Export Dropdown -->
-        <div class="dropdown">
-          <button class="btn btn-label-primary dropdown-toggle" data-bs-toggle="dropdown">
-            <i class="ti tabler-upload icon-xs me-1"></i> Export
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item"><i class="ti tabler-printer me-1"></i>Print</a></li>
-            <li><a class="dropdown-item"><i class="ti tabler-file-text me-1"></i>CSV</a></li>
-            <li><a class="dropdown-item"><i class="ti tabler-file-spreadsheet me-1"></i>Excel</a></li>
-            <li><a class="dropdown-item"><i class="ti tabler-file-description me-1"></i>PDF</a></li>
-            <li><a class="dropdown-item"><i class="ti tabler-copy me-1"></i>Copy</a></li>
-          </ul>
-        </div>
-
         <!-- Add New -->
-        <button class="btn btn-primary">
-          <i class="ti tabler-plus icon-sm"></i> Add New Record
-        </button>
+        <a href="{{ route('accounts.create') }}">
+          <button class="btn btn-primary">
+            <i class="ti tabler-plus icon-sm"></i> Add New Account
+          </button>
+        </a>
       </div>
     </div>
 
