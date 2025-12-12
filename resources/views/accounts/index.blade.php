@@ -22,6 +22,21 @@
 @endsection
 
 @section('content')
+  @php
+    function sortUrl($column): string
+    {
+        $current = request('sort_by');
+        $direction = request('sort_dir') === 'asc' ? 'desc' : 'asc';
+
+        if ($current !== $column) $direction = 'asc';
+
+        return request()->fullUrlWithQuery([
+            'sort_by' => $column,
+            'sort_dir' => $direction
+        ]);
+    }
+  @endphp
+
   <div class="card">
 
     <!-- Header + Buttons -->
@@ -67,9 +82,9 @@
           <label class="mb-0">Show</label>
 
           <select name="per_page" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
-            <option value="10"  {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-            <option value="25"  {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
-            <option value="50"  {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
             <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
           </select>
 
@@ -82,8 +97,8 @@
           <!-- Status Filter -->
           <select name="status" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
             <option value="">All Status</option>
-            <option value="active"   {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-            <option value="pending"  {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
             <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
           </select>
 
@@ -110,12 +125,36 @@
       <table class="table table-hover">
         <thead>
         <tr>
-          <th class="sortable"><span>Nickname</span><span class="sort-icon"></span></th>
-          <th class="sortable"><span>Client Id</span><span class="sort-icon"></span></th>
-          <th class="sortable"><span>Status</span></th>
-          <th class="sortable"><span>Token Expiry</span></th>
-          <th class="sortable"><span>Last Login</span><span class="sort-icon"></span></th>
-          <th style="width:80px;">Action</th>
+          <th class="sortable">
+            <a href="{{ sortUrl('nickname') }}" class="text-primary">
+              Nickname
+              @if($sortBy === 'nickname')
+                <span class="sort-arrow {{ $sortDir }}"></span>
+              @endif
+            </a>
+          </th>
+
+          <th class="sortable text-primary">
+            <a href="{{ sortUrl('client_id') }}">
+              Client ID
+              @if($sortBy === 'client_id')
+                <span class="sort-arrow {{ $sortDir }}"></span>
+              @endif
+            </a>
+          </th>
+
+          <th class="sortable text-primary"><span>Status</span></th>
+          <th class="sortable text-primary"><span>Token Expiry</span></th>
+          <th class="sortable text-primary">
+            <a href="{{ sortUrl('last_login_at') }}">
+              Last Login
+              @if($sortBy === 'last_login_at')
+                <span class="sort-arrow {{ $sortDir }}"></span>
+              @endif
+            </a>
+          </th>
+
+          <th class="text-primary" style="width:80px;">Action</th>
         </tr>
         </thead>
 
@@ -151,7 +190,7 @@
             </td>
             <td>{!! $account['token_expiry'] !!}</td>
             <td>{{ $account['last_login_at'] ?? '-' }}</td>
-            <td>
+            <td class="d-flex justify-content-end">
               <div class="dropdown">
                 <button class="btn btn-icon btn-text-secondary rounded-pill" data-bs-toggle="dropdown">
                   <i class="ti tabler-dots-vertical"></i>
@@ -187,51 +226,35 @@
 
   <!-- DataTable with Buttons -->
   <style>
-    /* header layout */
-    th.sortable {
-      position: relative;
-      padding-right: 22px; /* space for icon */
-      white-space: nowrap;
+    /* Make <th> behave like a flex row */
+    th.sortable a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* push icon to far right */
+      width: 100%;
+      color: inherit;
+      text-decoration: none;
+      font-weight: 600;
+      padding-right: 4px;
     }
 
-    th.sortable span:first-child {
-      float: left;
+    /* Sort arrow base style */
+    .sort-arrow {
+      border: solid #333;
+      border-width: 0 2px 2px 0;
+      display: inline-block;
+      padding: 3px;
     }
 
-    th.sortable .sort-icon {
-      position: absolute;
-      right: 4px;
-      top: 50%;
-      width: 50px;
-      height: 10px;
-      transform: translateY(-50%);
+    /* Up arrow (ASC) */
+    .sort-arrow.asc {
+      transform: rotate(-135deg);
     }
 
-    /* draw icon (UP and DOWN chevrons) */
-    th.sortable .sort-icon:before,
-    th.sortable .sort-icon:after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      margin: auto;
-      width: 6px;
-      height: 6px;
-      border-left: 2px solid #111;
-      border-bottom: 2px solid #111;
-      transform-origin: center;
+    /* Down arrow (DESC) */
+    .sort-arrow.desc {
+      transform: rotate(45deg);
     }
 
-    /* top arrow */
-    th.sortable .sort-icon:before {
-      top: -1px;
-      transform: rotate(135deg);
-    }
-
-    /* bottom arrow */
-    th.sortable .sort-icon:after {
-      bottom: -1px;
-      transform: rotate(-45deg);
-    }
   </style>
 @endsection

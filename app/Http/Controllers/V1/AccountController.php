@@ -25,7 +25,7 @@ class AccountController extends Controller
 
     $query = Account::query();
 
-    // If user is not admin → filter only his accounts
+    // USER FILTER
     if (!auth()->user()->hasRole('admin')) {
       $query->where('user_id', auth()->id());
     }
@@ -44,14 +44,37 @@ class AccountController extends Controller
       $query->where('status', $status);
     }
 
+    // SORTING
+    $sortable = ['nickname', 'client_id', 'last_login_at'];
+
+    $sortBy  = $request->input('sort_by');
+    $sortDir = $request->input('sort_dir');
+
+    // validate column
+    if (!in_array($sortBy, $sortable)) {
+      $sortBy = null; // ignore sorting
+    }
+
+    // validate direction
+    if (!in_array($sortDir, ['asc', 'desc'])) {
+      $sortDir = 'asc'; // default
+    }
+
+    // apply sorting only if valid
+    if ($sortBy) {
+      $query->orderBy($sortBy, $sortDir);
+    }
+
     // PAGINATION
     $perPage = $request->input('per_page', 10);
     $accounts = $query->paginate($perPage)->appends($request->query());
 
+    // MAP RESULTS
     $mapped = ListResource::collection($accounts->items())->resolve();
 
     $accounts->setCollection(collect($mapped));
-    return view('accounts.index', compact('pageConfigs', 'accounts'));
+
+    return view('accounts.index', compact('pageConfigs', 'accounts', 'sortBy', 'sortDir'));
   }
 
   public function store(StoreRequest $request)
