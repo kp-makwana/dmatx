@@ -12,7 +12,7 @@ class AccountPolicy
    */
   public function viewAny(User $user): bool
   {
-    return $user->hasRole('admin');
+    return $user->hasPermissionTo('view_accounts') || $user->hasRole('admin');
   }
 
   /**
@@ -20,7 +20,7 @@ class AccountPolicy
    */
   public function view(User $user, Account $account): bool
   {
-    return $user->id === $account->user_id || $user->hasRole('admin');
+    return $user->id == $account->user_id || $user->hasRole('admin');
   }
 
   /**

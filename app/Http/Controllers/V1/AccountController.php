@@ -21,6 +21,7 @@ class AccountController extends Controller
   }
   public function index(Request $request)
   {
+    $this->authorize('viewAny',Account::class);
     $pageConfigs = ['myLayout' => 'horizontal'];
 
     $query = Account::query();
