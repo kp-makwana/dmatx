@@ -30,7 +30,7 @@ class PasswordService
     // Find the user
     $user = User::where('email', $email)->first();
 
-    if (! $user) {
+    if (empty($user)) {
       throw ValidationException::withMessages([
         'email' => trans('passwords.user'), // or custom message
       ]);

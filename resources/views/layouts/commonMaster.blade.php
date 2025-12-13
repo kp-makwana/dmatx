@@ -90,6 +90,7 @@
 <body>
   <!-- Layout Content -->
   @yield('layoutContent')
+  @include('components.toast')
   <!--/ Layout Content -->
 
 

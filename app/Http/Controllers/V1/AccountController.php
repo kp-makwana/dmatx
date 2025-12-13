@@ -7,6 +7,7 @@ use App\Http\Requests\V1\Accounts\StoreRequest;
 use App\Models\V1\Account;
 use App\Services\AccountService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class AccountController extends Controller
 {
@@ -36,7 +37,6 @@ class AccountController extends Controller
     $this->authorize('create',Account::class);
     $validatedData = $request->validated();
     $this->service->create($validatedData);
-
-    return redirect()->route('accounts.index')->with('success', "Account added successfully,\n Take few second for angle login");
+    return redirect()->route('accounts.index')->with('success', "Account added successfully.Take few second for angle login");
   }
 }

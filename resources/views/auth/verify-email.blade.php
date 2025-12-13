@@ -38,7 +38,7 @@
 
           <p class="text-center mb-0">
             Didn't get the mail?
-            <a href="{{ route('password.email', ['email' => $email]) }}">
+            <a href="{{ route('resend.forget.password', ['email' => $email]) }}">
               Resend
             </a>
           </p>

@@ -35,7 +35,7 @@ class ForgotPasswordController extends Controller
       return back()->withErrors(['email' => __('password.reset_link_failed')]);
     }
 
-    return redirect()->route('password.verify.notice',['email'=> $request->email]);
+    return redirect()->route('password.verify.notice',['email'=> $request->email])->with('success', __('password.reset_link_sent'));
   }
 
   public function verifyEmailNotice(Request $request)
