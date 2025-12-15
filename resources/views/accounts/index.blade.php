@@ -169,7 +169,11 @@
                 </div>
 
                 <div>
-                  <span class="fw-medium">{{ $account['nickname'] ?: $account['client_id'] }}</span><br>
+                  <span class="fw-medium">
+                    <a href="{{ route('accounts.show',$account['id']) }}">
+                      {{ $account['nickname'] ?: $account['client_id'] }}
+                    </a>
+                  </span><br>
                   <small class="text-muted">{{ $account['account_name'] ?: 'N/A' }}</small>
                 </div>
               </div>
@@ -188,7 +192,7 @@
                   <i class="ti tabler-dots-vertical"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item" href="#">Details</a></li>
+                  <li><a class="dropdown-item" href="{{ route('accounts.show',$account['id']) }}">Details</a></li>
                   <li><a class="dropdown-item" href="#">Edit</a></li>
                   <li>
                     <form action="{{ route('accounts.destroy', $account['id']) }}"

@@ -23,19 +23,21 @@ class InstrumentSeeder extends Seeder
         $rows = [];
 
         foreach ($chunk as $item) {
-          $rows[] = [
-            'token'          => $item['token'] ?? null,
-            'symbol'         => $item['symbol'] ?? null,
-            'name'           => $item['name'] ?? null,
-            'expiry'         => $item['expiry'] ?? null,
-            'strike'         => $item['strike'] ?? null,
-            'lotsize'        => $item['lotsize'] ?? null,
-            'instrumenttype' => $item['instrumenttype'] ?? null,
-            'exch_seg'       => $item['exch_seg'],
-            'tick_size'      => $item['tick_size'] ?? null,
-            'created_at'     => now(),
-            'updated_at'     => now(),
-          ];
+          if (in_array($item['exch_seg'],['NSE','BSE'])){
+            $rows[] = [
+              'token'          => $item['token'] ?? null,
+              'symbol'         => $item['symbol'] ?? null,
+              'name'           => $item['name'] ?? null,
+              'expiry'         => $item['expiry'] ?? null,
+              'strike'         => $item['strike'] ?? null,
+              'lotsize'        => $item['lotsize'] ?? null,
+              'instrumenttype' => $item['instrumenttype'] ?? null,
+              'exch_seg'       => $item['exch_seg'],
+              'tick_size'      => $item['tick_size'] ?? null,
+              'created_at'     => now(),
+              'updated_at'     => now(),
+            ];
+          }
         }
 
         DB::table('instruments')->insert($rows);

@@ -418,7 +418,7 @@ Route::middleware('auth')->group(function () {
   Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
 
-  Route::resource('accounts', AccountController::class)->only(['index', 'create', 'store', 'destroy']);
+  Route::resource('accounts', AccountController::class)->only(['index', 'create', 'store', 'destroy','show']);
 
 });
 

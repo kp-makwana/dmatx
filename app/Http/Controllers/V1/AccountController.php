@@ -47,6 +47,13 @@ class AccountController extends Controller
     }
   }
 
+  public function show(Account $account)
+  {
+    $this->authorize('view',$account);
+    $pageConfigs = ['myLayout' => 'horizontal'];
+    return view('accounts.show', compact('account','pageConfigs'));
+  }
+
   public function destroy(Account $account)
   {
     $this->authorize('delete', $account);
