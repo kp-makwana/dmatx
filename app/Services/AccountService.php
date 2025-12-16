@@ -87,7 +87,7 @@ class AccountService
       $response = resolve(AngelService::class)->login($account);
 
       // ❌ Login failed → rollback
-      if (empty($response['status'])) {
+      if (empty($response['success'])) {
         throw new Exception($response['message'] ?? 'Angel login failed');
       }
 
@@ -109,5 +109,17 @@ class AccountService
       ->log('Smart-API Account Deleted');
 
     $account->delete();
+  }
+
+  public function refresh($account)
+  {
+    $response = resolve(AngelService::class)->getRMS($account);
+    if ($response['success']){
+      $data = $response['data'];
+      $account->net = $data['net'];
+      $account->amount_used = $data['utiliseddebits'];
+      $account->save();
+    }
+    return $response;
   }
 }

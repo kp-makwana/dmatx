@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
           LanguageLineSeeder::class,
           RolePermissionSeeder::class,
           UserSeeder::class,
-          AccountSeeder::class,
+//          AccountSeeder::class,
           InstrumentSeeder::class,
         ]);
     }

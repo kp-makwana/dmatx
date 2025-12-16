@@ -62,4 +62,11 @@ class AccountController extends Controller
       ->route('accounts.index')
       ->with('success', 'Account deleted successfully');
   }
+
+  public function refresh(Account $account)
+  {
+    $this->authorize('update', $account);
+    $this->service->refresh($account);
+    return redirect()->back()->with('success', 'Account refreshed successfully');
+  }
 }

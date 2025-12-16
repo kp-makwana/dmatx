@@ -38,6 +38,10 @@ return new class extends Migration
         $table->text('last_error')->nullable();
         $table->timestamp('last_login_at')->nullable();
 
+        // Account Balance
+        $table->decimal('net')->nullable();
+        $table->decimal('amount_used')->nullable();
+
         $table->timestamps();
       });
 

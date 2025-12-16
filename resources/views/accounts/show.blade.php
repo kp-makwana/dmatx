@@ -25,7 +25,34 @@
     'resources/assets/js/app-ecommerce-customer-detail.js',
     'resources/assets/js/app-ecommerce-customer-detail-overview.js'
   ])
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const deleteBtn = document.getElementById('btn-delete-account');
+      if (!deleteBtn) return;
 
+      deleteBtn.addEventListener('click', function () {
+        const form = this.closest('form');
+
+        Swal.fire({
+          title: 'Are you sure?',
+          text: `Are you sure to delete this account?`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, delete it!',
+          cancelButtonText: 'Cancel',
+          customClass: {
+            confirmButton: 'btn btn-danger me-2',
+            cancelButton: 'btn btn-label-secondary'
+          },
+          buttonsStyling: false
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit();
+          }
+        });
+      });
+    });
+  </script>
 @endsection
 
 @section('content')
@@ -34,14 +61,13 @@
     <div class="col-xl-4 col-lg-5 col-md-5 order-1 order-md-0">
       <!-- Customer-detail Card -->
       <div class="card mb-6">
-        <button
+        <a href="{{ route('account.refresh',request('account')) }}"
           type="button"
           class="btn btn-lg btn-icon btn-outline-secondary position-absolute top-0 end-0 m-3"
           title="Refresh"
-          onclick="location.reload()"
         >
           <i class="ti tabler-refresh"></i>
-        </button>
+        </a>
         <div class="card-body pt-12">
           <div class="customer-avatar-section">
             <div class="d-flex align-items-center flex-column">
@@ -56,30 +82,31 @@
           <div class="d-flex justify-content-around flex-wrap mb-6 gap-0 gap-md-3 gap-lg-4">
             <div class="d-flex align-items-center gap-4 me-5">
               <div class="avatar">
-                <div class="avatar-initial rounded bg-label-primary">
-                  <i class="icon-base ti tabler-shopping-cart icon-lg"></i>
+                <div class="avatar-initial rounded bg-label-success">
+                  <i class="icon-base ti tabler-currency-rupee icon-lg"></i>
                 </div>
               </div>
               <div>
-                <h5 class="mb-0">184</h5>
-                <span>Orders</span>
+                <h5 class="mb-0">{{ $account->net ?? '0' }}</h5>
+                <span>Net Amount</span>
               </div>
             </div>
             <div class="d-flex align-items-center gap-4">
               <div class="avatar">
-                <div class="avatar-initial rounded bg-label-primary">
-                  <i class="icon-base ti tabler-currency-dollar icon-lg"></i>
+                <div class="avatar-initial rounded bg-label-danger">
+                  <i class="icon-base ti tabler-currency-rupee icon-lg"></i>
                 </div>
               </div>
               <div>
-                <h5 class="mb-0">$12,378</h5>
-                <span>Spent</span>
+                <h5 class="mb-0">{{ $account->amount_used ?? '0' }}</h5>
+                <span>Used Amount</span>
               </div>
             </div>
           </div>
 
           <div class="info-container">
-            <h5 class="pb-4 border-bottom text-capitalize mt-6 mb-4">Details</h5>
+            <hr>
+{{--            <h5 class="pb-4 border-bottom text-capitalize mt-6 mb-4">Details</h5>--}}
             <ul class="list-unstyled mb-6">
               <li class="mb-2">
                 <span class="h6 me-1">Name:</span>
@@ -95,7 +122,7 @@
                 @csrf
                 @method('DELETE')
 
-                <button type="button"
+                <button type="button" id="btn-delete-account"
                         class="btn btn-danger w-100 btn-delete-account"
                         data-name="{{ $account->nickname ?: $account->client_id }}">
                   Delete Customer
@@ -293,35 +320,4 @@
   @include('_partials/_modals/modal-upgrade-plan')
   <!-- /Modal -->
 @endsection
-@push('page-script')
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.querySelectorAll('.btn-delete-account').forEach(button => {
-        button.addEventListener('click', function () {
-          const form = this.closest('form');
-          const name = this.dataset.name;
-
-          Swal.fire({
-            title: 'Are you sure?',
-            text: `You are about to delete "${name}" account. This action cannot be undone!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-            customClass: {
-              confirmButton: 'btn btn-danger me-2',
-              cancelButton: 'btn btn-label-secondary'
-            },
-            buttonsStyling: false
-          }).then((result) => {
-            if (result.isConfirmed) {
-              form.submit();
-            }
-          });
-        });
-      });
-    });
-  </script>
-@endpush
-
 

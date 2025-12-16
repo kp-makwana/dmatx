@@ -80,10 +80,10 @@ class AngelService
             'session_token' => $data['jwtToken'],
           ])
           ->log('Angel login successful');
-        return ['status' => true, 'message' => 'Angel login successful'];
+        return ['success' => true, 'message' => 'Angel login successful'];
       } else {
         $account->is_active = 0;
-        $account->last_error_code = $success['errorcode'];
+        $account->last_error_code = $success['errorcode'] ?? null;
         $account->last_error = $success['message'];
         $account->status = 'Fail';
         $account->save();
@@ -95,7 +95,7 @@ class AngelService
             'error' => $success['message'],
           ])
           ->log('Angel login failed');
-        return ['status' => false, 'message' => $success['message']];
+        return ['success' => false, 'message' => $success['message']];
       }
     } catch (\Exception $e) {
       activity()
@@ -106,7 +106,7 @@ class AngelService
         ])
         ->log('Angel login failed');
       Log::error("Angel Login Error: " . $e->getMessage());
-      return ['status' => false, 'message' => $e->getMessage()];
+      return ['success' => false, 'message' => $e->getMessage()];
     }
   }
 
@@ -157,15 +157,15 @@ class AngelService
       $endpoint = $this->baseUrl . "/rest/secure/angelbroking/user/v1/getProfile";
 
       $headers = [
-        'Content-Type'      => 'application/json',
-        'Accept'            => 'application/json',
-        'X-UserType'        => 'USER',
-        'X-SourceID'        => 'WEB',
-        'X-ClientLocalIP'   => request()->ip(),
-        'X-ClientPublicIP'  => request()->ip(),
-        'X-MACAddress'      => '00:00:00:00:00:00',
-        'X-PrivateKey'      => $account->api_key,
-        'Authorization'     => 'Bearer ' . $account->session_token,
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json',
+        'X-UserType' => 'USER',
+        'X-SourceID' => 'WEB',
+        'X-ClientLocalIP' => request()->ip(),
+        'X-ClientPublicIP' => request()->ip(),
+        'X-MACAddress' => '00:00:00:00:00:00',
+        'X-PrivateKey' => $account->api_key,
+        'Authorization' => 'Bearer ' . $account->session_token,
       ];
 
       $response = $this->client->get($endpoint, [
@@ -184,7 +184,7 @@ class AngelService
           ->performedOn($account)
           ->withProperties([
             'clientcode' => $result['data']['clientcode'],
-            'name'       => $result['data']['name'],
+            'name' => $result['data']['name'],
           ])
           ->log('Fetched Angel user profile');
       }
@@ -201,5 +201,94 @@ class AngelService
       Log::error("Angel getProfile Error: " . $e->getMessage());
     }
     return $account;
+  }
+
+  public function getRMS($account)
+  {
+    try {
+      $endpoint = $this->baseUrl . "/rest/secure/angelbroking/user/v1/getRMS";
+
+      $headers = [
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json',
+        'X-UserType' => 'USER',
+        'X-SourceID' => 'WEB',
+        'X-ClientLocalIP' => request()->ip(),
+        'X-ClientPublicIP' => request()->ip(),
+        'X-MACAddress' => '00:00:00:00:00:00',
+        'X-PrivateKey' => $account->api_key,
+        'Authorization' => 'Bearer ' . $account->session_token,
+      ];
+
+
+      $response = $this->client->get($endpoint, [
+        'headers' => $headers
+      ]);
+
+      $result = json_decode($response->getBody(), true);
+      $data = $result['data'];
+      if (!empty($data)){
+        return ['success' => true, 'message' => 'Balance fetch successfully', 'data' => $data];
+      }
+      $errorCode = $result['errorCode'] ?? null;
+      if ($errorCode == 'AG8001') {
+        $refreshTokenResponse = $this->generateTokens($account);
+        if ($refreshTokenResponse['success']) {
+          $this->getRMS($account);
+        }
+      }
+      $account->save();
+      return ['success' => false, 'message' => 'Internal server error', 'data' => $account];
+    } catch (\Exception $exception) {
+      return ['success' => false, 'message' => $exception->getMessage()];
+    }
+  }
+
+  private function generateTokens(&$account)
+  {
+    try {
+      $endpoint = $this->baseUrl . "/rest/auth/angelbroking/jwt/v1/generateTokens";
+      $headers = [
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json',
+        'X-UserType' => 'USER',
+        'X-SourceID' => 'WEB',
+        'X-ClientLocalIP' => request()->ip(),
+        'X-ClientPublicIP' => request()->ip(),
+        'X-MACAddress' => '00:00:00:00:00:00',
+        'X-PrivateKey' => $account->api_key,
+      ];
+
+      $payload = [
+        'refreshToken' => $account->refresh_token,
+      ];
+
+      $response = $this->client->post($endpoint, [
+        'headers' => $headers,
+        'json' => $payload,
+      ]);
+
+      $result = json_decode($response->getBody(), true);
+      $data = $result['data'];
+      if (!empty($data)){
+        $account->session_token = $data['jwtToken'];
+        $account->refresh_token = $data['refreshToken'];
+        $account->feed_token = $data['feedToken'];
+        return ['success' => true, 'message' => 'Balance fetch successfully', 'data' => $data];
+      }
+      $errorCode = $result['errorCode'];
+      $message = $result['message'];
+      if ($errorCode == 'AG8001') {
+        $refreshTokenResponse = $this->login($account);
+        if ($refreshTokenResponse['success']) {
+          $message = $refreshTokenResponse['message'];
+          return ['success' => true, 'message' => $message, 'data' => $refreshTokenResponse['data']];
+        }
+      }
+      return ['success' => false, 'message' => $message, $result['data']];
+    } catch (\Exception $exception) {
+      Log::error("Angel refreshToken Error: " . $exception->getMessage());
+      return ['success' => false, 'message' => $exception->getMessage()];
+    }
   }
 }
