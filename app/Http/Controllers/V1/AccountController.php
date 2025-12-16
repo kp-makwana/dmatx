@@ -52,6 +52,9 @@ class AccountController extends Controller
     $this->authorize('view',$account);
     $pageConfigs = ['myLayout' => 'horizontal'];
     $result = $this->service->getHoldings($account);
+    if (!isset($result['data'])){
+      return redirect()->route('accounts.index')->with('error','Rate limit exceeded');
+    }
     $data =  $result['data'];
     $summary = $data['totalholding'] ?? [];
     $holdings = $data['holdings'] ?? [];
