@@ -108,4 +108,9 @@ class AccountController extends Controller
     }
     return redirect()->back()->with($flashType,$message);
   }
+
+  public function modifyOrder(Request $request, Account $account)
+  {
+      dd($request->all(),$account);
+  }
 }

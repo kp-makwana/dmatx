@@ -83,14 +83,14 @@
     const tokens     = @json($tokens);
 
     const ltpCellMap = {};
+    const ltpCache   = {};
+    let activeModifyToken = null;
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', () => {
 
-      // Map token → TDs
-      document.querySelectorAll('.ltp-cell').forEach(td => {
-        const token = String(td.dataset.token);
+    document.querySelectorAll('.ltp-cell').forEach(td => {
+        const token = td.dataset.token;
         if (!token) return;
-
         if (!ltpCellMap[token]) ltpCellMap[token] = [];
         ltpCellMap[token].push(td);
       });
@@ -102,7 +102,7 @@
         `&apiKey=${encodeURIComponent(apiKey)}`
       );
 
-      socket.binaryType = "arraybuffer";
+      socket.binaryType = 'arraybuffer';
 
       socket.onopen = () => {
         socket.send(JSON.stringify({
@@ -119,65 +119,125 @@
       };
 
       socket.onmessage = (event) => {
-
-        // Heartbeat
-        if (typeof event.data === 'string') return;
         if (!(event.data instanceof ArrayBuffer)) return;
 
         const view  = new DataView(event.data);
         const bytes = new Uint8Array(event.data);
 
-        const mode = view.getInt8(0);
-        if (mode !== 2) return; // ✅ QUOTE MODE ONLY
+        if (view.getInt8(0) !== 2) return;
 
-        // ---- TOKEN ----
         let token = '';
         for (let i = 2; i < 27; i++) {
           if (bytes[i] === 0) break;
           token += String.fromCharCode(bytes[i]);
         }
 
-        const tds = ltpCellMap[token];
-        if (!tds) return;
-
-        // ---- PRICES ----
         const ltp   = view.getInt32(43, true) / 100;
         const close = Number(view.getBigInt64(115, true)) / 100;
-
         if (!ltp || !close) return;
 
-        // ---- ANGEL ONE CALCULATION ----
+        ltpCache[token] = ltp;
+
         const diff = ltp - close;
         const pct  = (diff / close) * 100;
+        const cls  = diff >= 0 ? 'text-success' : 'text-danger';
+        const sign = diff >= 0 ? '+' : '';
 
-        const isUp = diff >= 0;
-        const cls  = isUp ? 'text-success' : 'text-danger';
-        const sign = isUp ? '+' : '';
-
-        tds.forEach(td => {
+        (ltpCellMap[token] || []).forEach(td => {
 
           const orderType  = td.dataset.orderType;
           const orderPrice = parseFloat(td.dataset.orderPrice);
 
-          // ---- ORDER PRICE (STATIC, ANGEL STYLE) ----
-          if (orderType === 'market') {
-            td.querySelector('.order-price').innerHTML = 'AT MARKET';
-          } else {
-            td.querySelector('.order-price').innerHTML =
-              `₹${orderPrice.toFixed(2)}`;
-          }
+          td.querySelector('.order-price').innerHTML =
+            orderType === 'market'
+              ? 'AT MARKET'
+              : `₹${orderPrice.toFixed(2)}`;
 
-          // ---- LTP LINE (LIVE) ----
           td.querySelector('.ltp-live').innerHTML = `
-    LTP ₹${ltp.toFixed(2)}
-    <span class="${cls}">
-      (${sign}${pct.toFixed(2)}%)
-    </span>
-  `;
+        LTP ₹${ltp.toFixed(2)}
+        <span class="${cls}">
+          (${sign}${pct.toFixed(2)}%)
+        </span>
+      `;
         });
+
+        if (token === activeModifyToken) {
+          const ltpSpan = document.getElementById('mo-ltp');
+          if (ltpSpan) {
+            ltpSpan.innerText = ltp.toFixed(2);
+          }
+        }
       };
-      socket.onerror = err => console.error("❌ Socket Error", err);
-      socket.onclose = () => console.warn("⚠️ Socket Closed");
+
+      socket.onerror = err => console.error('❌ Socket Error', err);
+      socket.onclose = () => console.warn('⚠️ Socket Closed');
+    });
+
+    function openModifyOrder(btn) {
+      const order = JSON.parse(btn.dataset.order);
+      activeModifyToken = order.symboltoken;
+      document.getElementById('mo-order-id').value     = order.orderid;
+      document.getElementById('mo-symbol-token').value = order.symboltoken;
+      document.getElementById('mo-variety').value      = order.variety;
+      document.getElementById('mo-symbol').value       = order.tradingsymbol;
+      document.getElementById('mo-side').value         = order.transactiontype;
+      document.getElementById('mo-ordertype').value    = order.ordertype;
+      document.getElementById('mo-qty').value          = order.quantity;
+      const priceInput = document.getElementById('mo-price');
+
+      if (order.ordertype === 'MARKET') {
+        priceInput.value = '';
+        priceInput.disabled = true;
+        priceInput.placeholder = 'AT MARKET';
+      } else {
+        priceInput.disabled = false;
+        priceInput.value = order.price;
+      }
+
+      const ltpSpan = document.getElementById('mo-ltp');
+      if (ltpCache[order.symboltoken]) {
+        ltpSpan.innerText = ltpCache[order.symboltoken].toFixed(2);
+      } else {
+        ltpSpan.innerText = '—';
+      }
+      new bootstrap.Modal(document.getElementById('editOrderModal')).show();
+    }
+
+    function handleOrderTypeChange(type) {
+
+      const priceInput = document.getElementById('mo-price');
+
+      if (type === 'MARKET') {
+        // MARKET → disable price
+        priceInput.value = '';
+        priceInput.disabled = true;
+        priceInput.placeholder = 'AT MARKET';
+        return;
+      }
+
+      // LIMIT → enable price
+      priceInput.disabled = false;
+      priceInput.placeholder = 'Enter limit price';
+
+      // ✅ AUTO-FILL FROM LIVE PRICE (ANGEL ONE STYLE)
+      if (
+        activeModifyToken &&
+        ltpCache[activeModifyToken]
+      ) {
+        priceInput.value = ltpCache[activeModifyToken].toFixed(2);
+      } else {
+        priceInput.value = '';
+      }
+    }
+
+    // Attach listener
+    document.addEventListener('DOMContentLoaded', () => {
+      const orderTypeSelect = document.getElementById('mo-ordertype');
+      if (!orderTypeSelect) return;
+
+      orderTypeSelect.addEventListener('change', (e) => {
+        handleOrderTypeChange(e.target.value);
+      });
     });
   </script>
 @endsection
@@ -345,8 +405,7 @@
                           $executedTime = $order['exchtime'] ?: $order['updatetime'];
                         @endphp
 
-                        <tr class="order-row cursor-pointer"
-                            onclick="openOrder('{{ $order['orderid'] }}')">
+                        <tr class="order-row cursor-pointer" >
 
                           {{-- 1️⃣ Symbol + Share --}}
                           <td>
@@ -406,8 +465,10 @@
                             @if($key == 'Pending')
                               <div class="d-inline-flex gap-2">
                                 <!-- Modify -->
-                                <a href="#"
-                                   class="btn btn-sm btn-outline-warning">
+                                <a href="javascript:void(0)"
+                                   class="btn btn-sm btn-outline-warning"
+                                   data-order='@json($order)'
+                                   onclick="openModifyOrder(this)">
                                   <i class="ti tabler-edit me-1"></i> Modify
                                 </a>
 
@@ -459,5 +520,79 @@
   <!-- Modal -->
   @include('_partials/_modals/modal-edit-user')
   <!-- /Modal -->
+  <div class="modal fade" id="editOrderModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-simple">
+      <div class="modal-content">
+        <div class="modal-body">
+
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+          <h4 class="text-center mb-3">Modify Order</h4>
+
+          <form id="editOrderForm"
+                method="POST"
+                action="{{ route('account.modify.order',request('account')->id) }}"
+                class="row g-4">
+
+            @csrf
+
+            <input type="hidden" name="orderid" id="mo-order-id">
+            <input type="hidden" name="symboltoken" id="mo-symbol-token">
+            <input type="hidden" name="variety" id="mo-variety">
+
+            <!-- SYMBOL -->
+            <div class="col-md-6">
+              <label class="form-label">Symbol</label>
+              <input type="text" class="form-control" id="mo-symbol" disabled>
+            </div>
+
+            <!-- SIDE -->
+            <div class="col-md-6">
+              <label class="form-label">Side</label>
+              <input type="text" class="form-control" id="mo-side" disabled>
+            </div>
+
+            <!-- ORDER TYPE -->
+            <div class="col-md-6">
+              <label class="form-label">Order Type</label>
+              <select class="form-select" id="mo-ordertype" name="ordertype">
+                <option value="MARKET">MARKET</option>
+                <option value="LIMIT">LIMIT</option>
+              </select>
+            </div>
+
+            <!-- QUANTITY -->
+            <div class="col-md-6">
+              <label class="form-label">Quantity</label>
+              <input type="number" name="quantity" class="form-control" id="mo-qty" required>
+            </div>
+
+            <!-- PRICE -->
+            <div class="col-md-6">
+              <label class="form-label">Price</label>
+              <input type="number" step="0.05" name="price" class="form-control" id="mo-price">
+            </div>
+
+            <!-- LIVE LTP -->
+            <div class="col-md-6">
+              <label class="form-label">Live Price</label>
+              <div class="form-control bg-light">
+                LTP ₹<span id="mo-ltp">—</span>
+              </div>
+            </div>
+
+            <div class="col-12 text-center mt-3">
+              <button type="submit" class="btn btn-primary me-2">
+                Modify Order
+              </button>
+              <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 @endsection
 
