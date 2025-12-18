@@ -183,6 +183,7 @@
       document.getElementById('mo-side').value         = order.transactiontype;
       document.getElementById('mo-ordertype').value    = order.ordertype;
       document.getElementById('mo-qty').value          = order.quantity;
+      document.getElementById('mo-tradingsymbol').value      = order.tradingsymbol;
       const priceInput = document.getElementById('mo-price');
 
       if (order.ordertype === 'MARKET') {
@@ -539,6 +540,7 @@
             <input type="hidden" name="orderid" id="mo-order-id">
             <input type="hidden" name="symboltoken" id="mo-symbol-token">
             <input type="hidden" name="variety" id="mo-variety">
+            <input type="hidden" name="tradingsymbol" id="mo-tradingsymbol">
 
             <!-- SYMBOL -->
             <div class="col-md-6">

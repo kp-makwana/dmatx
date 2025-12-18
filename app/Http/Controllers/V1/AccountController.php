@@ -111,6 +111,14 @@ class AccountController extends Controller
 
   public function modifyOrder(Request $request, Account $account)
   {
-      dd($request->all(),$account);
+    $payload = $request->all();
+    $response = $this->service->modifyOrder($account,$payload);
+    $message = $response['message'];
+    if ($response['success']){
+      $flashType = 'success';
+    } else {
+      $flashType = 'error';
+    }
+    return redirect()->back()->with($flashType,$message);
   }
 }

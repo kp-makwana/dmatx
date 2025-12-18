@@ -422,4 +422,77 @@ class AngelService
       return ['success' => false, 'message' => $exception->getMessage()];
     }
   }
+
+  public function modifyOrder(Account $account, array $payload)
+  {
+    try {
+      $endpoint = $this->baseUrl . "/rest/secure/angelbroking/order/v1/modifyOrder";
+
+      $headers = [
+        'Content-Type'      => 'application/json',
+        'Accept'            => 'application/json',
+        'X-UserType'        => 'USER',
+        'X-SourceID'        => 'WEB',
+        'X-ClientLocalIP'   => request()->ip(),
+        'X-ClientPublicIP'  => request()->ip(),
+        'X-MACAddress'      => '00:00:00:00:00:00',
+        'X-PrivateKey'      => $account->api_key,
+        'Authorization'     => 'Bearer ' . $account->session_token,
+      ];
+
+
+      $requestPayload = [
+        'variety'   => 'NORMAL',
+        'orderid'   => $payload['orderid'],
+        'ordertype' => $payload['ordertype'],
+        'producttype' => 'DELIVERY',
+        'duration'   => 'DAY',
+        'quantity'  => (int) $payload['quantity'],
+        'tradingsymbol' => $payload['tradingsymbol'].'-EQ',
+        'symboltoken' => $payload['symboltoken'] ?? null,
+        'exchange' => 'NSE',
+      ];
+
+      if ($payload['ordertype'] === 'LIMIT') {
+        $requestPayload['price'] = (float) $payload['price'];
+      }
+
+      $response = $this->client->post($endpoint, [
+        'headers' => $headers,
+        'json'    => $requestPayload,
+      ]);
+      $result = json_decode($response->getBody(), true);
+
+      if (!empty($result['data'])) {
+        return [
+          'success' => true,
+          'message' => 'Order modified successfully',
+          'data'    => $result['data'],
+        ];
+      }
+
+      if (($result['errorCode'] ?? null) === 'AG8001') {
+        $refresh = $this->generateTokens($account);
+        if ($refresh['success']) {
+          return $this->modifyOrder($account, $payload);
+        }
+      }
+
+      return [
+        'success' => false,
+        'message' => $result['message'] ?? 'Order modify failed',
+      ];
+
+    } catch (\Exception $e) {
+      Log::error('Angel Modify Order Error', [
+        'error' => $e->getMessage(),
+        'line'  => $e->getLine(),
+      ]);
+
+      return [
+        'success' => false,
+        'message' => $e->getMessage(),
+      ];
+    }
+  }
 }

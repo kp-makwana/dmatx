@@ -198,4 +198,9 @@ class AccountService
   {
     return resolve(AngelService::class)->cancelOrder($account,$order);
   }
+
+  public function modifyOrder($account,$payload)
+  {
+    return resolve(AngelService::class)->modifyOrder($account,$payload);
+  }
 }
