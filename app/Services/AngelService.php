@@ -375,4 +375,51 @@ class AngelService
       return ['success' => false, 'message' => $exception->getMessage().':'.$exception->getLine()];
     }
   }
+
+  public function cancelOrder($account,$order)
+  {
+    try {
+      $endpoint = $this->baseUrl . "/rest/secure/angelbroking/order/v1/cancelOrder";
+
+      $headers = [
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json',
+        'X-UserType' => 'USER',
+        'X-SourceID' => 'WEB',
+        'X-ClientLocalIP' => request()->ip(),
+        'X-ClientPublicIP' => request()->ip(),
+        'X-MACAddress' => '00:00:00:00:00:00',
+        'X-PrivateKey' => $account->api_key,
+        'Authorization' => 'Bearer ' . $account->session_token,
+      ];
+
+
+      $payload = [
+        'variety' => 'NORMAL',
+        'orderid' => $order
+      ];
+
+      $response = $this->client->post($endpoint, [
+        'headers' => $headers,
+        'json'    => $payload
+      ]);
+
+      $result = json_decode($response->getBody(), true);
+      $data = $result['data'];
+      if (!empty($data)){
+        return ['success' => true, 'message' => 'Order cancel successfully', 'data' => $data];
+      }
+      $errorCode = $result['errorCode'] ?? null;
+      if ($errorCode == 'AG8001') {
+        $refreshTokenResponse = $this->generateTokens($account);
+        if ($refreshTokenResponse['success']) {
+          $this->cancelOrder($account,$order);
+        }
+      }
+      $account->save();
+      return ['success' => false, 'message' => 'Internal server error', 'data' => $account];
+    } catch (\Exception $exception) {
+      return ['success' => false, 'message' => $exception->getMessage()];
+    }
+  }
 }

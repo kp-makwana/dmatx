@@ -190,4 +190,9 @@ class AccountService
     }
     return $response;
   }
+
+  public function cancelOrder($account,$order)
+  {
+    return resolve(AngelService::class)->cancelOrder($account,$order);
+  }
 }

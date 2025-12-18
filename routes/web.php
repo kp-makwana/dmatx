@@ -5,6 +5,8 @@ use App\Http\Controllers\V1\Auth\AuthController;
 use App\Http\Controllers\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\V1\Auth\OtpController;
 use App\Http\Controllers\V1\HomeController;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\laravel_example\UserManagement;
 use App\Http\Controllers\dashboard\Analytics;
@@ -418,10 +420,30 @@ Route::middleware('auth')->group(function () {
   Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
 
-  Route::resource('accounts', AccountController::class)->only(['index', 'create', 'store', 'destroy','show']);
-  Route::get('account/refresh/{account}', [AccountController::class,'refresh'])->name('account.refresh');
-  Route::get('account/{account}/orders', [AccountController::class,'orders'])->name('account.orders');
+  Route::resource('accounts', AccountController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
 
+  Route::prefix('account')->name('account.')->group(function () {
+    Route::get('refresh/{account}', [AccountController::class, 'refresh'])->name('refresh');
+    Route::get('{account}/orders', [AccountController::class, 'orders'])->name('orders');
+    Route::post('{account}/cancel-order/{order}', [AccountController::class, 'cancelOrder'])->name('cancel.order');
+  });
 });
-
 Route::get('/',[HomeController::class,'index'])->name('home');
+
+
+Route::any('postback/webhook',function (\Illuminate\Http\Request $request){
+  \Illuminate\Support\Facades\Log::info('postback webhook',[$request->all()]);
+});
+Route::get('debug/logs', function () {
+  $logFile = storage_path('logs/laravel.log');
+
+  if (!File::exists($logFile)) {
+    abort(404, 'Log file not found');
+  }
+
+  return Response::make(
+    File::get($logFile),
+    200,
+    ['Content-Type' => 'text/plain']
+  );
+});

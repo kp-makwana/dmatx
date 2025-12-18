@@ -94,4 +94,16 @@ class AccountController extends Controller
     return view('accounts.orders',compact('account','pageConfigs','orders'))
       ->with($flashType,$message);
   }
+
+  public function cancelOrder(Account $account,$order)
+  {
+    $response = $this->service->cancelOrder($account,$order);
+    $message = $response['message'];
+    if ($response['success']){
+      $flashType = 'success';
+    } else {
+      $flashType = 'error';
+    }
+    return redirect()->back()->with($flashType,$message);
+  }
 }

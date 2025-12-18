@@ -51,50 +51,29 @@
           }
         });
       });
-
-      const dt_ajax_table = document.querySelector('.datatables-ajax');
-      if (dt_ajax_table) {
-        let dt_ajax = new DataTable(dt_ajax_table, {
-          processing: true,
-          ajax: {
-            url: assetsPath + 'json/ajax.php',
-            dataSrc: 'data'
-          },
-          layout: {
-            topStart: {
-              rowClass: 'row mx-3 my-0 justify-content-between',
-              features: [
-                {
-                  pageLength: {
-                    menu: [7, 10, 25, 50, 100],
-                    text: 'Show_MENU_entries'
-                  }
-                }
-              ]
-            },
-            topEnd: {
-              search: {
-                placeholder: ''
-              }
-            },
-            bottomStart: {
-              rowClass: 'row mx-3 justify-content-between',
-              features: ['info']
-            },
-            bottomEnd: 'paging'
-          },
-          language: {
-            paginate: {
-              next: '<i class="icon-base ti tabler-chevron-right scaleX-n1-rtl icon-18px"></i>',
-              previous: '<i class="icon-base ti tabler-chevron-left scaleX-n1-rtl icon-18px"></i>',
-              first: '<i class="icon-base ti tabler-chevrons-left scaleX-n1-rtl icon-18px"></i>',
-              last: '<i class="icon-base ti tabler-chevrons-right scaleX-n1-rtl icon-18px"></i>'
-            }
-          }
-        });
-      }
     });
 
+    function cancelOrder(url) {
+      Swal.fire({
+        title: 'Cancel Order?',
+        text: 'Are you sure you want to cancel this order?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Cancel',
+        cancelButtonText: 'No',
+        customClass: {
+          confirmButton: 'btn btn-danger me-2',
+          cancelButton: 'btn btn-label-secondary'
+        },
+        buttonsStyling: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const form = document.getElementById('cancelOrderForm');
+          form.action = url;
+          form.submit();
+        }
+      });
+    }
 
   </script>
 @endsection
@@ -309,9 +288,28 @@
 
                           {{-- 7️⃣ Action --}}
                           <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">
-                              View
-                            </button>
+                            @if($key == 'Pending')
+                              <div class="d-inline-flex gap-2">
+                                <!-- Modify -->
+                                <a href="#"
+                                   class="btn btn-sm btn-outline-warning">
+                                  <i class="ti tabler-edit me-1"></i> Modify
+                                </a>
+
+                                <!-- Cancel -->
+                                <button
+                                  type="button"
+                                  class="btn btn-sm btn-outline-danger btn-cancel-order"
+                                  onclick="cancelOrder('{{ route('account.cancel.order', ['account' => request('account')->id, 'order' => $order['orderid']]) }}')"
+                                  data-order-id="{{ $order['orderid'] }}">
+                                  <i class="ti tabler-x me-1"></i> Cancel
+                                </button>
+                              </div>
+                            @else
+                              <button class="btn btn-sm btn-outline-primary">
+                                View
+                              </button>
+                            @endif
                           </td>
                         </tr>
                       @empty
@@ -339,10 +337,12 @@
     </div>
     <!--/ Customer Content -->
   </div>
+  <form id="cancelOrderForm" method="POST" style="display:none;">
+    @csrf
+  </form>
 
   <!-- Modal -->
   @include('_partials/_modals/modal-edit-user')
-  @include('_partials/_modals/modal-upgrade-plan')
   <!-- /Modal -->
 @endsection
 
