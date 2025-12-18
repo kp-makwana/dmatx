@@ -74,7 +74,103 @@
         }
       });
     }
+  </script>
 
+  <script>
+    const clientCode = @json($account->client_id);
+    const feedToken  = @json($account->feed_token);
+    const apiKey     = @json($account->api_key);
+    const tokens     = @json($tokens);
+
+    const ltpCellMap = {};
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // Map token → TDs
+      document.querySelectorAll('.ltp-cell').forEach(td => {
+        const token = String(td.dataset.token);
+        if (!token) return;
+
+        if (!ltpCellMap[token]) ltpCellMap[token] = [];
+        ltpCellMap[token].push(td);
+      });
+
+      const socket = new WebSocket(
+        `wss://smartapisocket.angelone.in/smart-stream` +
+        `?clientCode=${encodeURIComponent(clientCode)}` +
+        `&feedToken=${encodeURIComponent(feedToken)}` +
+        `&apiKey=${encodeURIComponent(apiKey)}`
+      );
+
+      socket.binaryType = "arraybuffer";
+
+      socket.onopen = () => {
+        socket.send(JSON.stringify({
+          correlationID: clientCode,
+          action: 1,
+          params: {
+            mode: 1,
+            tokenList: [{
+              exchangeType: 1,
+              tokens: tokens
+            }]
+          }
+        }));
+      };
+
+      socket.onmessage = (event) => {
+
+        if (!(event.data instanceof ArrayBuffer)) return;
+
+        const bytes = new Uint8Array(event.data);
+        const view  = new DataView(event.data);
+
+        // Ignore non-price packets
+        if (bytes.length < 48) return;
+
+        // Token (fixed-length for your feed)
+        let token = '';
+        for (let i = 2; i <= 6; i++) {
+          if (bytes[i] !== 0) token += String.fromCharCode(bytes[i]);
+        }
+
+        const rawLtp = view.getInt32(43, true);
+        if (rawLtp === 0) return;
+
+        const ltp = rawLtp / 100;
+
+        const tds = ltpCellMap[token];
+        if (!tds) return;
+
+        tds.forEach(td => {
+          const orderPrice = parseFloat(td.dataset.orderPrice);
+          if (!orderPrice || orderPrice <= 0) return;
+
+          // ✅ CORRECT DIFFERENCE
+          const diff = orderPrice - ltp;
+
+          const isProfit = diff > 0;
+          const cls = isProfit ? 'text-success' : 'text-danger';
+          const sign = isProfit ? '+' : '';
+
+          const liveDiv = td.querySelector('.ltp-live');
+          if (!liveDiv) return;
+
+          // ✅ SINGLE-LINE DISPLAY
+          liveDiv.innerHTML = `
+        <span class="text-muted">LTP</span>
+        <span class="">
+          ₹${ltp.toFixed(2)}
+        </span>
+        <span class="${cls}">
+          (₹${sign}${Math.abs(diff).toFixed(2)})
+        </span>
+      `;
+        });
+      };
+      socket.onerror = err => console.error("❌ Socket Error", err);
+      socket.onclose = () => console.warn("⚠️ Socket Closed");
+    });
   </script>
 @endsection
 
@@ -261,11 +357,17 @@
                             </span>
                           </td>
 
-                          {{-- 4️⃣ Order Price / AT MARKET --}}
-                          <td>
-                            <span class="fw-semibold">
+                          <td class="ltp-cell"
+                              data-token="{{ (string) $order['symboltoken'] }}"
+                              data-order-price="{{ (float) $order['price'] }}">
+
+                            <div class="fw-semibold order-price">
                               {{ $orderPrice }}
-                            </span>
+                            </div>
+
+                            <div class="small ltp-live">
+                              LTP …
+                            </div>
                           </td>
 
                           {{-- 5️⃣ Executed Price --}}

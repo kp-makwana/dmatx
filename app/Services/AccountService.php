@@ -142,8 +142,9 @@ class AccountService
         'Rejected' => [],
         'Cancel'   => [],
       ];
-
+      $tokens = [];
       foreach ($orders as $order) {
+        $tokens[] = $order['symboltoken'];
 
         // ✅ Remove -EQ from symbol (display purpose)
         if (!empty($order['tradingsymbol'])) {
@@ -186,7 +187,9 @@ class AccountService
         });
         $groupedOrders[$key] = $group;
       }
-      $response['data'] = $groupedOrders;
+      $tokens = array_values(array_unique($tokens));
+      $response['data']['data'] = $groupedOrders;
+      $response['data']['tokens'] = array_values(array_unique($tokens));
     }
     return $response;
   }
