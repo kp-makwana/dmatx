@@ -601,8 +601,11 @@
             </div>
 
             <div class="col-12 text-center mt-3">
-              <button type="submit" class="btn btn-primary me-2">
-                Modify Order
+              <button type="submit" class="btn btn-primary me-2 d-inline-flex align-items-center justify-content-center"
+                id="modifySubmitBtn" >
+                <span class="btn-text">Modify Order</span>
+                <span class="spinner-border spinner-border-sm d-none ms-2" role="status"></span>
+                <span class="btn-loading-text d-none ms-2">Modifying...</span>
               </button>
               <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
                 Cancel
@@ -789,6 +792,30 @@
         document.getElementById('viewOrderModal')
       ).show();
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const modifyForm = document.getElementById('editOrderForm');
+      if (!modifyForm) return;
+
+      modifyForm.addEventListener('submit', () => {
+        const btn = document.getElementById('modifySubmitBtn');
+        if (!btn) return;
+
+        const spinner = btn.querySelector('.spinner-border');
+        const text = btn.querySelector('.btn-text');
+        const loadingText = btn.querySelector('.btn-loading-text');
+
+        // Disable button
+        btn.disabled = true;
+
+        // Hide original text
+        text.classList.add('d-none');
+
+        // Show spinner + loading text
+        spinner.classList.remove('d-none');
+        loadingText.classList.remove('d-none');
+      });
+    });
   </script>
 @endsection
 
