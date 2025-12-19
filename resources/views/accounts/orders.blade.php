@@ -463,31 +463,48 @@
 
                           {{-- 7️⃣ Action --}}
                           <td class="text-end">
-                            @if($key == 'Pending')
-                              <div class="d-inline-flex gap-2">
-                                <!-- Modify -->
-                                <a href="javascript:void(0)"
-                                   class="btn btn-sm btn-outline-warning"
-                                   data-order='@json($order)'
-                                   onclick="openModifyOrder(this)">
-                                  <i class="ti tabler-edit me-1"></i> Modify
-                                </a>
+                            <div class="d-inline-flex align-items-center gap-1">
 
-                                <!-- Cancel -->
+                              <!-- VIEW (ALL ORDERS) -->
+                              <button
+                                type="button"
+                                class="btn btn-sm btn-icon btn-outline-primary"
+                                data-bs-toggle="tooltip"
+                                title="View Order"
+                                data-order='@json($order)'
+                                onclick="openViewOrder(this)">
+                                <i class="ti tabler-eye"></i>
+                              </button>
+
+                              @if($key == 'Pending')
+                                <!-- MODIFY -->
                                 <button
                                   type="button"
-                                  class="btn btn-sm btn-outline-danger btn-cancel-order"
-                                  onclick="cancelOrder('{{ route('account.cancel.order', ['account' => request('account')->id, 'order' => $order['orderid']]) }}')"
-                                  data-order-id="{{ $order['orderid'] }}">
-                                  <i class="ti tabler-x me-1"></i> Cancel
+                                  class="btn btn-sm btn-icon btn-outline-warning"
+                                  data-bs-toggle="tooltip"
+                                  title="Modify Order"
+                                  data-order='@json($order)'
+                                  onclick="openModifyOrder(this)">
+                                  <i class="ti tabler-edit"></i>
                                 </button>
-                              </div>
-                            @else
-                              <button class="btn btn-sm btn-outline-primary">
-                                View
-                              </button>
-                            @endif
+
+                                <!-- CANCEL -->
+                                <button
+                                  type="button"
+                                  class="btn btn-sm btn-icon btn-outline-danger"
+                                  data-bs-toggle="tooltip"
+                                  title="Cancel Order"
+                                  onclick="cancelOrder('{{ route('account.cancel.order', [
+          'account' => request('account')->id,
+          'order' => $order['orderid']
+        ]) }}')">
+                                  <i class="ti tabler-x"></i>
+                                </button>
+                              @endif
+
+                            </div>
                           </td>
+
                         </tr>
                       @empty
                         <tr>
@@ -596,5 +613,182 @@
       </div>
     </div>
   </div>
+  <div class="modal fade" id="viewOrderModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-simple">
+      <div class="modal-content">
+
+        <!-- HEADER -->
+        <div class="modal-header border-0 pb-0">
+          <div>
+            <h4 class="mb-1">
+              <span id="vo-symbol" class="fw-bold"></span>
+              <span
+                id="vo-exchange"
+                class="badge rounded-pill bg-label-primary ms-2"
+                style="font-size: 0.65rem; font-weight: 500;">
+              </span>
+            </h4>
+
+            <div class="d-flex align-items-center gap-2">
+              <span id="vo-side" class="badge"></span>
+              <span id="vo-status" class="badge"></span>
+            </div>
+          </div>
+
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <!-- BODY -->
+        <div class="modal-body pt-4">
+
+          <!-- PRICE CARDS -->
+          <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <div class="text-muted small">Order Price</div>
+                <div class="fw-semibold fs-5" id="vo-price">—</div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <div class="text-muted small">Executed Price</div>
+                <div class="fw-semibold fs-5" id="vo-executed-price">—</div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <div class="text-muted small">Quantity</div>
+                <div class="fw-semibold fs-5">
+                  <span id="vo-filled"></span> /
+                  <span id="vo-qty"></span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- DETAILS GRID -->
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Order ID</span>
+                <span class="fw-semibold" id="vo-order-id"></span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Order Type</span>
+                <span class="fw-semibold" id="vo-ordertype"></span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Product</span>
+                <span class="fw-semibold" id="vo-product"></span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Duration</span>
+                <span class="fw-semibold" id="vo-duration"></span>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Time</span>
+                <span class="fw-semibold" id="vo-time"></span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- REJECTION MESSAGE -->
+          <div class="alert alert-danger mt-4 d-none" id="vo-reject-box">
+            <strong>Rejected Reason:</strong>
+            <div class="mt-1" id="vo-reject-text"></div>
+          </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="modal-footer border-0">
+          <button class="btn btn-label-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <script>
+    function openViewOrder(btn) {
+      const o = JSON.parse(btn.dataset.order);
+
+      // BASIC
+      document.getElementById('vo-symbol').innerText = o.tradingsymbol;
+      document.getElementById('vo-exchange').innerText = o.exchange;
+      document.getElementById('vo-order-id').innerText = o.orderid;
+      document.getElementById('vo-ordertype').innerText = o.ordertype;
+      document.getElementById('vo-product').innerText = o.producttype;
+      document.getElementById('vo-duration').innerText = o.duration;
+      document.getElementById('vo-qty').innerText = o.quantity;
+      document.getElementById('vo-filled').innerText = o.filledshares;
+      document.getElementById('vo-time').innerText =
+        o.exchtime || o.updatetime || '—';
+
+      // PRICE
+      document.getElementById('vo-price').innerText =
+        o.ordertype === 'MARKET'
+          ? 'AT MARKET'
+          : `₹${Number(o.price).toFixed(2)}`;
+
+      document.getElementById('vo-executed-price').innerText =
+        o.averageprice && o.averageprice > 0
+          ? `₹${Number(o.averageprice).toFixed(2)}`
+          : '—';
+
+      // SIDE BADGE
+      const sideEl = document.getElementById('vo-side');
+      sideEl.innerText = o.transactiontype;
+      sideEl.className =
+        'badge ' + (o.transactiontype === 'BUY'
+          ? 'bg-success'
+          : 'bg-danger');
+
+      // STATUS BADGE
+      const statusEl = document.getElementById('vo-status');
+      const status = o.status.toLowerCase();
+
+      statusEl.innerText = status.toUpperCase();
+      statusEl.className =
+        'badge ' +
+        (status === 'complete'
+          ? 'bg-success'
+          : status === 'rejected'
+            ? 'bg-danger'
+            : 'bg-secondary');
+
+      // REJECTION
+      const rejectBox = document.getElementById('vo-reject-box');
+      if (status === 'rejected' && o.text) {
+        rejectBox.classList.remove('d-none');
+        document.getElementById('vo-reject-text').innerText = o.text;
+      } else {
+        rejectBox.classList.add('d-none');
+      }
+
+      new bootstrap.Modal(
+        document.getElementById('viewOrderModal')
+      ).show();
+    }
+  </script>
 @endsection
 
