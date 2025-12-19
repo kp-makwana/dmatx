@@ -59,14 +59,13 @@
     const apiKey     = @json($account->api_key);
     const tokens     = @json($tokens);
 
-    const ltpCellMap = {};   // token => [td, td]
-    const ltpCache   = {};   // token => ltp
-    let activeToken  = null;
+    const ltpCellMap = {};
+    const pnlCellMap = {};
+    const ltpCache   = {};
 
     function canRead(view, offset, size) {
       return view.byteLength >= offset + size;
     }
-
     function readInt32(view, offset) {
       return canRead(view, offset, 4)
         ? view.getInt32(offset, true) / 100
@@ -74,16 +73,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-
-      document.querySelectorAll('.ltp-cell').forEach(td => {
-        const token = td.dataset.symboltoken?.trim();
-        if (!token) return;
-
-        if (!ltpCellMap[token]) {
-          ltpCellMap[token] = [];
-        }
-        ltpCellMap[token].push(td);
-      });
 
       const socket = new WebSocket(
         `wss://smartapisocket.angelone.in/smart-stream` +
@@ -111,92 +100,115 @@
       socket.onmessage = (event) => {
         if (!(event.data instanceof ArrayBuffer)) return;
 
-        const buffer = event.data;
-        const view   = new DataView(buffer);
-        const bytes  = new Uint8Array(buffer);
+        const view  = new DataView(event.data);
+        const bytes = new Uint8Array(event.data);
 
-        if (buffer.byteLength < 60) return;
+        if (event.data.byteLength < 60) return;
+        if (view.getInt8(0) !== 2) return;
 
-        const mode = view.getInt8(0);
-        if (mode !== 2) return;
-
-        let rawToken = '';
+        // TOKEN
+        let token = '';
         for (let i = 2; i < 27 && i < bytes.length; i++) {
           if (bytes[i] === 0) break;
-          rawToken += String.fromCharCode(bytes[i]);
+          token += String.fromCharCode(bytes[i]);
         }
-
-        const token = rawToken.trim();
+        token = token.trim();
         if (!token) return;
 
+        // LTP
         const ltp = readInt32(view, 43);
         if (!ltp) return;
 
         ltpCache[token] = ltp;
 
-        const cells = ltpCellMap[token];
-        if (!cells) return;
+        /* ===============================
+           ROW UPDATES
+        =============================== */
+        document.querySelectorAll(`.ltp-cell[data-symboltoken="${token}"]`)
+          .forEach(td => {
 
-        cells.forEach(td => {
-          const span = td.querySelector('.ltp-value');
-          if (!span) return;
+            const avg  = parseFloat(td.dataset.avgprice);
+            const qty  = parseFloat(td.dataset.quantity);
+            const prev = parseFloat(td.dataset.prevclose);
 
-            const oldPrice =
-              parseFloat(span.innerText.replace(/[₹,]/g, '')) || 0;
+            const ltpEl   = td.querySelector('.ltp-value');
+            const todayEl = td.querySelector('.ltp-today-percent');
 
-            span.innerText = `₹${ltp.toFixed(2)}`;
+            if (ltpEl) {
+              ltpEl.innerText = `₹${ltp.toFixed(2)}`;
+            }
 
-          span.classList.remove('text-success', 'text-danger');
-          span.classList.add(
-            ltp >= oldPrice ? 'text-success' : 'text-danger'
-          );
+            // Today % (below LTP)
+            if (todayEl && prev) {
+              const pct = ((ltp - prev) / prev) * 100;
+              todayEl.innerText = `${pct.toFixed(2)}%`;
+              todayEl.className = `ltp-today-percent small ${pct >= 0 ? 'text-success' : 'text-danger'}`;
+            }
+
+            // Row P&L
+            const pnlTd = document.querySelector(`.pnl-cell[data-symboltoken="${token}"]`);
+            if (pnlTd && avg && qty) {
+              const pnlVal = (ltp - avg) * qty;
+              const pnlPct = ((ltp - avg) / avg) * 100;
+
+              pnlTd.querySelector('.pnl-value').innerText = `₹${pnlVal.toFixed(2)}`;
+              pnlTd.querySelector('.pnl-percent').innerText = `${pnlPct.toFixed(2)}%`;
+
+              const cls = pnlVal >= 0 ? 'text-success' : 'text-danger';
+              pnlTd.querySelector('.pnl-value').className = `pnl-value fw-semibold ${cls}`;
+              pnlTd.querySelector('.pnl-percent').className = `pnl-percent small ${cls}`;
+            }
+          });
+
+        /* ===============================
+           PORTFOLIO TOTALS (RECALC CLEAN)
+        =============================== */
+        let totalInv = 0;
+        let totalPnl = 0;
+        let todayInv = 0;
+        let todayPnl = 0;
+
+        document.querySelectorAll('.ltp-cell').forEach(td => {
+          const tkn  = td.dataset.symboltoken;
+          const ltpV = ltpCache[tkn];
+          if (!ltpV) return;
+
+          const avg  = parseFloat(td.dataset.avgprice);
+          const qty  = parseFloat(td.dataset.quantity);
+          const prev = parseFloat(td.dataset.prevclose);
+
+          totalInv += avg * qty;
+          totalPnl += (ltpV - avg) * qty;
+
+          todayInv += prev * qty;
+          todayPnl += (ltpV - prev) * qty;
         });
-        if (activeToken && token === String(activeToken)) {
-          const modalLtpSpan = document.getElementById('om-ltp');
-          if (modalLtpSpan) {
-            modalLtpSpan.innerText = ltp.toFixed(2);
-          }
-        }
+
+        const totalPct = totalInv ? (totalPnl / totalInv) * 100 : 0;
+        const todayPct = todayInv ? (todayPnl / todayInv) * 100 : 0;
+
+        // UPDATE HEADER
+        document.getElementById('overall-pnl').innerText =
+          `₹${totalPnl.toFixed(2)}`;
+
+        document.getElementById('overall-pnl').className =
+          `fw-semibold ${totalPnl >= 0 ? 'text-success' : 'text-danger'}`;
+
+        document.getElementById('overall-today-pnl').innerText =
+          `₹${todayPnl.toFixed(2)}`;
+
+        document.getElementById('overall-today-pnl-percent').innerText =
+          `${todayPct.toFixed(2)}%`;
+
+        document.getElementById('overall-today-pnl').className =
+          `fw-semibold ${todayPnl >= 0 ? 'text-success' : 'text-danger'}`;
+
+        document.getElementById('overall-today-pnl-percent').className =
+          `${todayPct >= 0 ? 'text-success' : 'text-danger'}`;
       };
-
-      socket.onerror = err => console.error('❌ Socket Error', err);
-      socket.onclose = () => console.warn('⚠️ Socket Closed');
-    });
-
-    function openOrderModal(order, side = 'BUY') {
-      activeToken = order.symboltoken;
-
-      document.getElementById('om-symbol-token').value = order.symboltoken;
-      document.getElementById('om-tradingsymbol').value = order.tradingsymbol;
-      document.getElementById('om-transactiontype').value = side;
-
-      document.getElementById('om-symbol').value = order.tradingsymbol;
-      document.getElementById('om-side').value = side;
-      document.getElementById('om-qty').value =
-        side === 'SELL' ? order.quantity : '';
-
-      document.getElementById('om-ltp').innerText =
-        ltpCache[order.symboltoken]?.toFixed(2) || '—';
-
-      new bootstrap.Modal(document.getElementById('orderModal')).show();
-    }
-
-    document.addEventListener('change', e => {
-      if (e.target.id !== 'om-ordertype') return;
-
-      const priceInput = document.getElementById('om-price');
-
-      if (e.target.value === 'MARKET') {
-        priceInput.value = '';
-        priceInput.disabled = true;
-      } else {
-        priceInput.disabled = false;
-        if (activeToken && ltpCache[activeToken]) {
-          priceInput.value = ltpCache[activeToken].toFixed(2);
-        }
-      }
     });
   </script>
+
 
 @endsection
 
@@ -411,21 +423,29 @@
                 </td>
 
                 <!-- LTP -->
-                <td class="ltp-cell" data-symboltoken="{{ (string) $row['symboltoken'] }}">
-                  <span class="ltp-value {{ $row['ltp'] > $row['averageprice'] ? 'text-success' : 'text-danger' }}">
-                    ₹{{ number_format($row['ltp'], 2) }}
-                  </span>
+                <td class="ltp-cell"
+                    data-symboltoken="{{ (string) $row['symboltoken'] }}"
+                    data-avgprice="{{ $row['averageprice'] }}"
+                    data-quantity="{{ $row['quantity'] }}"
+                    data-prevclose="{{ $row['close'] }}">
+
+                    <span class="ltp-value fw-semibold">
+                      ₹{{ number_format($row['ltp'], 2) }}
+                    </span>
+                  <div class="ltp-today-percent small
+                    {{ $row['ltp'] >= $row['close'] ? 'text-success' : 'text-danger' }}">
+                    {{ number_format((($row['ltp'] - $row['close']) / $row['close']) * 100, 2) }}%
+                  </div>
                 </td>
 
+
                 <!-- P&L -->
-                <td>
-          <span class="fw-semibold
-            {{ $row['profitandloss'] >= 0 ? 'text-success' : 'text-danger' }}">
-            ₹{{ number_format($row['profitandloss'], 2) }}
-          </span>
-                  <div class="small
-            {{ $row['pnlpercentage'] >= 0 ? 'text-success' : 'text-danger' }}">
-                    {{ $row['pnlpercentage'] }}%
+                <td class="pnl-cell" data-symboltoken="{{ (string) $row['symboltoken'] }}">
+                  <span class="pnl-value fw-semibold {{ $row['profitandloss'] >= 0 ? 'text-success' : 'text-danger' }}">
+                    ₹{{ number_format($row['profitandloss'], 2) }}
+                  </span>
+                  <div class="pnl-percent small {{ $row['pnlpercentage'] >= 0 ? 'text-success' : 'text-danger' }}">
+                    {{ number_format($row['pnlpercentage'], 2) }}%
                   </div>
                 </td>
 
