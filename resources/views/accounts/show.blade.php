@@ -174,7 +174,19 @@
 
             /* LTP */
             const ltpEl = td.querySelector('.ltp-value');
-            if (ltpEl) ltpEl.innerText = `₹${ltp.toFixed(2)}`;
+            if (ltpEl) {
+              ltpEl.innerText = `₹${ltp.toFixed(2)}`;
+
+              // reset old color
+              ltpEl.classList.remove('text-success', 'text-danger');
+
+              // color based on previous close
+              if (prev) {
+                ltpEl.classList.add(
+                  ltp >= prev ? 'text-success' : 'text-danger'
+                );
+              }
+            }
 
             /* TODAY % */
             const todayEl = td.querySelector('.ltp-today-percent');
