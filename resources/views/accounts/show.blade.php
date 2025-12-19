@@ -350,6 +350,32 @@
       });
   </script>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const modalEl = document.getElementById('orderModal');
+      if (!modalEl) return;
+
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        // clear inputs
+        document.getElementById('om-qty')?.classList.remove('is-invalid');
+        document.getElementById('om-price')?.classList.remove('is-invalid');
+
+        // clear error messages
+        const qtyErr   = document.getElementById('om-qty-error');
+        const priceErr = document.getElementById('om-price-error');
+
+        if (qtyErr) qtyErr.innerText = '';
+        if (priceErr) priceErr.innerText = '';
+
+        // OPTIONAL: reset price disabled state
+        const priceInput = document.getElementById('om-price');
+        if (priceInput) {
+          priceInput.disabled = false;
+          priceInput.value = '';
+        }
+      });
+    });
+  </script>
 
 @endsection
 
