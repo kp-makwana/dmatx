@@ -600,8 +600,10 @@
                       ₹{{ number_format($row['ltp'], 2) }}
                     </span>
                   <div class="ltp-today-percent small
-                    {{ $row['ltp'] >= $row['close'] ? 'text-success' : 'text-danger' }}">
-                    {{ number_format((($row['ltp'] - $row['close']) / $row['close']) * 100, 2) }}%
+                  {{ ($row['close'] > 0 && $row['ltp'] >= $row['close']) ? 'text-success' : 'text-danger' }}">
+                  {{ $row['close'] > 0
+                        ? number_format((($row['ltp'] - $row['close']) / $row['close']) * 100, 2) . '%'
+                        : '0.00%' }}
                   </div>
                 </td>
 
