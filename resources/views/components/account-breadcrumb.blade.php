@@ -10,13 +10,5 @@
         <i class="icon-base ti tabler-shopping-cart icon-sm me-1_5"></i> Orders
       </a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{{ url('app/ecommerce/customer/details/billing') }}"><i
-          class="icon-base ti tabler-map-pin icon-sm me-1_5"></i>Address & Billing</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{{ url('app/ecommerce/customer/details/notifications') }}"><i
-          class="icon-base ti tabler-bell icon-sm me-1_5"></i>Notifications</a>
-    </li>
   </ul>
 </div>
