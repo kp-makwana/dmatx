@@ -59,9 +59,8 @@
     const apiKey     = @json($account->api_key);
     const tokens     = @json($tokens);
 
-    const ltpCellMap = {};
-    const pnlCellMap = {};
-    const ltpCache   = {};
+    const ltpCache = {};
+    let activeToken = null; // ✅ REQUIRED FOR MODAL
 
     function canRead(view, offset, size) {
       return view.byteLength >= offset + size;
@@ -122,90 +121,68 @@
         ltpCache[token] = ltp;
 
         /* ===============================
-           ROW UPDATES
+           UPDATE TABLE LTP
         =============================== */
         document.querySelectorAll(`.ltp-cell[data-symboltoken="${token}"]`)
           .forEach(td => {
+            const span = td.querySelector('.ltp-value');
+            if (!span) return;
 
-            const avg  = parseFloat(td.dataset.avgprice);
-            const qty  = parseFloat(td.dataset.quantity);
-            const prev = parseFloat(td.dataset.prevclose);
-
-            const ltpEl   = td.querySelector('.ltp-value');
-            const todayEl = td.querySelector('.ltp-today-percent');
-
-            if (ltpEl) {
-              ltpEl.innerText = `₹${ltp.toFixed(2)}`;
-            }
-
-            // Today % (below LTP)
-            if (todayEl && prev) {
-              const pct = ((ltp - prev) / prev) * 100;
-              todayEl.innerText = `${pct.toFixed(2)}%`;
-              todayEl.className = `ltp-today-percent small ${pct >= 0 ? 'text-success' : 'text-danger'}`;
-            }
-
-            // Row P&L
-            const pnlTd = document.querySelector(`.pnl-cell[data-symboltoken="${token}"]`);
-            if (pnlTd && avg && qty) {
-              const pnlVal = (ltp - avg) * qty;
-              const pnlPct = ((ltp - avg) / avg) * 100;
-
-              pnlTd.querySelector('.pnl-value').innerText = `₹${pnlVal.toFixed(2)}`;
-              pnlTd.querySelector('.pnl-percent').innerText = `${pnlPct.toFixed(2)}%`;
-
-              const cls = pnlVal >= 0 ? 'text-success' : 'text-danger';
-              pnlTd.querySelector('.pnl-value').className = `pnl-value fw-semibold ${cls}`;
-              pnlTd.querySelector('.pnl-percent').className = `pnl-percent small ${cls}`;
-            }
+            span.innerText = `₹${ltp.toFixed(2)}`;
           });
 
         /* ===============================
-           PORTFOLIO TOTALS (RECALC CLEAN)
+           🔥 UPDATE MODAL LTP LIVE
         =============================== */
-        let totalInv = 0;
-        let totalPnl = 0;
-        let todayInv = 0;
-        let todayPnl = 0;
-
-        document.querySelectorAll('.ltp-cell').forEach(td => {
-          const tkn  = td.dataset.symboltoken;
-          const ltpV = ltpCache[tkn];
-          if (!ltpV) return;
-
-          const avg  = parseFloat(td.dataset.avgprice);
-          const qty  = parseFloat(td.dataset.quantity);
-          const prev = parseFloat(td.dataset.prevclose);
-
-          totalInv += avg * qty;
-          totalPnl += (ltpV - avg) * qty;
-
-          todayInv += prev * qty;
-          todayPnl += (ltpV - prev) * qty;
-        });
-
-        const totalPct = totalInv ? (totalPnl / totalInv) * 100 : 0;
-        const todayPct = todayInv ? (todayPnl / todayInv) * 100 : 0;
-
-        // UPDATE HEADER
-        document.getElementById('overall-pnl').innerText =
-          `₹${totalPnl.toFixed(2)}`;
-
-        document.getElementById('overall-pnl').className =
-          `fw-semibold ${totalPnl >= 0 ? 'text-success' : 'text-danger'}`;
-
-        document.getElementById('overall-today-pnl').innerText =
-          `₹${todayPnl.toFixed(2)}`;
-
-        document.getElementById('overall-today-pnl-percent').innerText =
-          `${todayPct.toFixed(2)}%`;
-
-        document.getElementById('overall-today-pnl').className =
-          `fw-semibold ${todayPnl >= 0 ? 'text-success' : 'text-danger'}`;
-
-        document.getElementById('overall-today-pnl-percent').className =
-          `${todayPct >= 0 ? 'text-success' : 'text-danger'}`;
+        if (activeToken && token === String(activeToken)) {
+          const modalLtp = document.getElementById('om-ltp');
+          if (modalLtp) {
+            modalLtp.innerText = ltp.toFixed(2);
+          }
+        }
       };
+    });
+
+    /* =====================================================
+       ✅ MODAL OPEN FUNCTION (MISSING BEFORE)
+    ===================================================== */
+    function openOrderModal(order, side = 'BUY') {
+      activeToken = order.symboltoken;
+
+      document.getElementById('om-symbol-token').value  = order.symboltoken;
+      document.getElementById('om-tradingsymbol').value = order.tradingsymbol;
+      document.getElementById('om-transactiontype').value = side;
+
+      document.getElementById('om-symbol').value = order.tradingsymbol;
+      document.getElementById('om-side').value   = side;
+      document.getElementById('om-qty').value =
+        side === 'SELL' ? order.quantity : '';
+
+      document.getElementById('om-ltp').innerText =
+        ltpCache[order.symboltoken]
+          ? ltpCache[order.symboltoken].toFixed(2)
+          : '—';
+
+      new bootstrap.Modal(document.getElementById('orderModal')).show();
+    }
+
+    /* =====================================================
+       ORDER TYPE CHANGE
+    ===================================================== */
+    document.addEventListener('change', e => {
+      if (e.target.id !== 'om-ordertype') return;
+
+      const priceInput = document.getElementById('om-price');
+
+      if (e.target.value === 'MARKET') {
+        priceInput.value = '';
+        priceInput.disabled = true;
+      } else {
+        priceInput.disabled = false;
+        if (activeToken && ltpCache[activeToken]) {
+          priceInput.value = ltpCache[activeToken].toFixed(2);
+        }
+      }
     });
   </script>
 
