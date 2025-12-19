@@ -53,18 +53,26 @@
       });
     });
   </script>
+
   <script>
+    /* =====================================================
+       CONFIG
+    ===================================================== */
     const clientCode = @json($account->client_id);
     const feedToken  = @json($account->feed_token);
     const apiKey     = @json($account->api_key);
     const tokens     = @json($tokens);
 
-    const ltpCache = {};
-    let activeToken = null;
+    /* =====================================================
+       STATE
+    ===================================================== */
+    const ltpCache     = {}; // token => ltp
+    const circuitCache = {}; // token => { upper, lower }
+    let activeToken    = null;
 
-    /* ===============================
+    /* =====================================================
        SAFE READ HELPERS
-    =============================== */
+    ===================================================== */
     function canRead(view, offset, size) {
       return view.byteLength >= offset + size;
     }
@@ -74,9 +82,18 @@
         : null;
     }
 
-    /* ===============================
-       SOCKET
-    =============================== */
+    /* fallback circuit: ±10% */
+    function fallbackCircuit(prevClose) {
+      if (!prevClose) return null;
+      return {
+        upper: +(prevClose * 1.10).toFixed(2),
+        lower: +(prevClose * 0.90).toFixed(2)
+      };
+    }
+
+    /* =====================================================
+       SOCKET INIT
+    ===================================================== */
     document.addEventListener('DOMContentLoaded', () => {
 
       const socket = new WebSocket(
@@ -127,22 +144,39 @@
         ltpCache[token] = ltp;
 
         /* ===============================
-           UPDATE ROWS
+           CIRCUIT READ (SAFE)
         =============================== */
-        document.querySelectorAll(`.ltp-cell[data-symboltoken="${token}"]`)
+        const upper = readInt32(view, 123);
+        const lower = readInt32(view, 127);
+
+        if (upper && lower) {
+          circuitCache[token] = { upper, lower };
+        } else {
+          document
+            .querySelectorAll(`.ltp-cell[data-symboltoken="${token}"]`)
+            .forEach(td => {
+              const prev = parseFloat(td.dataset.prevclose);
+              const fb = fallbackCircuit(prev);
+              if (fb) circuitCache[token] = fb;
+            });
+        }
+
+        /* ===============================
+           TABLE UPDATE
+        =============================== */
+        document
+          .querySelectorAll(`.ltp-cell[data-symboltoken="${token}"]`)
           .forEach(td => {
 
             const avg  = parseFloat(td.dataset.avgprice);
             const qty  = parseFloat(td.dataset.quantity);
             const prev = parseFloat(td.dataset.prevclose);
 
-            /* ---- LTP ---- */
+            /* LTP */
             const ltpEl = td.querySelector('.ltp-value');
-            if (ltpEl) {
-              ltpEl.innerText = `₹${ltp.toFixed(2)}`;
-            }
+            if (ltpEl) ltpEl.innerText = `₹${ltp.toFixed(2)}`;
 
-            /* ---- TODAY % ---- */
+            /* TODAY % */
             const todayEl = td.querySelector('.ltp-today-percent');
             if (todayEl && prev) {
               const pct = ((ltp - prev) / prev) * 100;
@@ -151,7 +185,7 @@
                 `ltp-today-percent small ${pct >= 0 ? 'text-success' : 'text-danger'}`;
             }
 
-            /* ---- P & L ---- */
+            /* ROW P&L */
             const pnlTd = document.querySelector(
               `.pnl-cell[data-symboltoken="${token}"]`
             );
@@ -160,20 +194,21 @@
               const pnl    = (ltp - avg) * qty;
               const pnlPct = ((ltp - avg) / avg) * 100;
 
-              const pnlValEl = pnlTd.querySelector('.pnl-value');
-              const pnlPctEl = pnlTd.querySelector('.pnl-percent');
-
-              if (pnlValEl) pnlValEl.innerText = `₹${pnl.toFixed(2)}`;
-              if (pnlPctEl) pnlPctEl.innerText = `${pnlPct.toFixed(2)}%`;
+              pnlTd.querySelector('.pnl-value').innerText =
+                `₹${pnl.toFixed(2)}`;
+              pnlTd.querySelector('.pnl-percent').innerText =
+                `${pnlPct.toFixed(2)}%`;
 
               const cls = pnl >= 0 ? 'text-success' : 'text-danger';
-              pnlValEl.className = `pnl-value fw-semibold ${cls}`;
-              pnlPctEl.className = `pnl-percent small ${cls}`;
+              pnlTd.querySelector('.pnl-value').className =
+                `pnl-value fw-semibold ${cls}`;
+              pnlTd.querySelector('.pnl-percent').className =
+                `pnl-percent small ${cls}`;
             }
           });
 
         /* ===============================
-           MODAL LTP LIVE
+           MODAL LIVE LTP
         =============================== */
         if (activeToken && token === String(activeToken)) {
           const modalLtp = document.getElementById('om-ltp');
@@ -182,9 +217,9 @@
       };
     });
 
-    /* ===============================
+    /* =====================================================
        MODAL OPEN
-    =============================== */
+    ===================================================== */
     function openOrderModal(order, side = 'BUY') {
       activeToken = order.symboltoken;
 
@@ -197,20 +232,22 @@
       document.getElementById('om-qty').value =
         side === 'SELL' ? order.quantity : '';
 
-      const orderType = document.getElementById('om-ordertype').value;
       const priceInput = document.getElementById('om-price');
-      const ltp = ltpCache[order.symboltoken];
+      const orderType  = document.getElementById('om-ordertype').value;
+      const ltp        = ltpCache[order.symboltoken];
 
-      // 🔥 MARKET ORDER → show LTP + disable
+      /* MARKET */
       if (orderType === 'MARKET') {
         priceInput.disabled = true;
         priceInput.value = ltp ? ltp.toFixed(2) : '';
-        priceInput.placeholder = 'AT MARKET';
-      }
-      // 🔥 LIMIT ORDER → enable + prefill LTP
-      else {
+      } else {
         priceInput.disabled = false;
         priceInput.value = ltp ? ltp.toFixed(2) : '';
+      }
+
+      const limits = circuitCache[order.symboltoken];
+      if (limits) {
+        priceInput.title = `LC ₹${limits.lower} | UC ₹${limits.upper}`;
       }
 
       document.getElementById('om-ltp').innerText =
@@ -219,10 +256,6 @@
       new bootstrap.Modal(document.getElementById('orderModal')).show();
     }
 
-
-    /* ===============================
-       ORDER TYPE CHANGE
-    =============================== */
     document.addEventListener('change', e => {
       if (e.target.id !== 'om-ordertype') return;
 
@@ -238,6 +271,71 @@
         }
       }
     });
+
+    /* =====================================================
+       VALIDATION HELPERS
+    ===================================================== */
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      const er = document.getElementById(`${id}-error`);
+      if (!el || !er) return;
+      el.classList.add('is-invalid');
+      er.innerText = msg;
+    }
+    function clearError(id) {
+      const el = document.getElementById(id);
+      const er = document.getElementById(`${id}-error`);
+      if (!el || !er) return;
+      el.classList.remove('is-invalid');
+      er.innerText = '';
+    }
+
+    document.addEventListener('input', e => {
+      if (e.target.id === 'om-qty') clearError('om-qty');
+      if (e.target.id === 'om-price') clearError('om-price');
+    });
+
+    /* =====================================================
+       FORM SUBMIT VALIDATION
+    ===================================================== */
+    document
+      .getElementById('orderForm')
+      ?.addEventListener('submit', function (e) {
+
+        let hasError = false;
+
+        const qty   = parseInt(document.getElementById('om-qty').value, 10);
+        const price = parseFloat(document.getElementById('om-price').value);
+        const type  = document.getElementById('om-ordertype').value;
+
+        clearError('om-qty');
+        clearError('om-price');
+
+        if (!qty || qty <= 0) {
+          showError('om-qty', 'Quantity is required');
+          hasError = true;
+        }
+
+        if (type === 'LIMIT') {
+          if (!price || price <= 0) {
+            showError('om-price', 'Price is required');
+            hasError = true;
+          }
+
+          const limits = circuitCache[activeToken];
+          if (limits) {
+            if (price > limits.upper) {
+              showError('om-price', `Above Upper Circuit ₹${limits.upper}`);
+              hasError = true;
+            }
+            if (price < limits.lower) {
+              showError('om-price', `Below Lower Circuit ₹${limits.lower}`);
+              hasError = true;
+            }
+          }
+        }
+        if (hasError) e.preventDefault();
+      });
   </script>
 
 
@@ -565,13 +663,15 @@
             <!-- QUANTITY -->
             <div class="col-md-6">
               <label class="form-label">Quantity</label>
-              <input type="number" name="quantity" class="form-control" id="om-qty" required>
+              <input type="number" name="quantity" class="form-control" id="om-qty">
+              <div class="invalid-feedback" id="om-qty-error"></div>
             </div>
 
             <!-- PRICE -->
             <div class="col-md-6">
               <label class="form-label">Price</label>
-              <input type="number" step="0.05" name="price" class="form-control" id="om-price">
+              <input type="number" step="0.01" name="price" class="form-control" id="om-price">
+              <div class="invalid-feedback" id="om-price-error"></div>
             </div>
 
             <!-- LIVE LTP -->
