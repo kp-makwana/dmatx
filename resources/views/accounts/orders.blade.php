@@ -77,23 +77,47 @@
   </script>
 
   <script>
+    /* =====================================================
+       CONFIG
+    ===================================================== */
     const clientCode = @json($account->client_id);
     const feedToken  = @json($account->feed_token);
     const apiKey     = @json($account->api_key);
     const tokens     = @json($tokens);
 
-    const ltpCellMap = {};
-    const ltpCache   = {};
+    /* =====================================================
+       STATE
+    ===================================================== */
+    const ltpCache     = {}; // token => ltp
+    const circuitCache = {}; // token => { upper, lower }
     let activeModifyToken = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
+    /* =====================================================
+       SAFE READ HELPERS
+    ===================================================== */
+    function canRead(view, offset, size) {
+      return view.byteLength >= offset + size;
+    }
 
-    document.querySelectorAll('.ltp-cell').forEach(td => {
-        const token = td.dataset.token;
-        if (!token) return;
-        if (!ltpCellMap[token]) ltpCellMap[token] = [];
-        ltpCellMap[token].push(td);
-      });
+    function readInt32(view, offset) {
+      return canRead(view, offset, 4)
+        ? view.getInt32(offset, true) / 100
+        : null;
+    }
+
+    /* fallback ±10% */
+    function fallbackCircuit(prevClose) {
+      if (!prevClose) return null;
+      return {
+        upper: +(prevClose * 1.10).toFixed(2),
+        lower: +(prevClose * 0.90).toFixed(2)
+      };
+    }
+
+    /* =====================================================
+       SOCKET INIT
+    ===================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
 
       const socket = new WebSocket(
         `wss://smartapisocket.angelone.in/smart-stream` +
@@ -124,66 +148,93 @@
         const view  = new DataView(event.data);
         const bytes = new Uint8Array(event.data);
 
+        if (event.data.byteLength < 60) return;
         if (view.getInt8(0) !== 2) return;
 
+        /* TOKEN */
         let token = '';
-        for (let i = 2; i < 27; i++) {
+        for (let i = 2; i < 27 && i < bytes.length; i++) {
           if (bytes[i] === 0) break;
           token += String.fromCharCode(bytes[i]);
         }
+        token = token.trim();
+        if (!token) return;
 
-        const ltp   = view.getInt32(43, true) / 100;
-        const close = Number(view.getBigInt64(115, true)) / 100;
-        if (!ltp || !close) return;
+        /* LTP */
+        const ltp = readInt32(view, 43);
+        if (!ltp) return;
 
         ltpCache[token] = ltp;
 
-        const diff = ltp - close;
-        const pct  = (diff / close) * 100;
-        const cls  = diff >= 0 ? 'text-success' : 'text-danger';
-        const sign = diff >= 0 ? '+' : '';
+        /* PREV CLOSE */
+        const close = readInt32(view, 115);
 
-        (ltpCellMap[token] || []).forEach(td => {
+        /* CIRCUIT */
+        const upper = readInt32(view, 123);
+        const lower = readInt32(view, 127);
 
-          const orderType  = td.dataset.orderType;
-          const orderPrice = parseFloat(td.dataset.orderPrice);
+        if (upper && lower) {
+          circuitCache[token] = { upper, lower };
+        } else if (close) {
+          const fb = fallbackCircuit(close);
+          if (fb) circuitCache[token] = fb;
+        }
 
-          td.querySelector('.order-price').innerHTML =
-            orderType === 'market'
-              ? 'AT MARKET'
-              : `₹${orderPrice.toFixed(2)}`;
-
-          td.querySelector('.ltp-live').innerHTML = `
-        LTP ₹${ltp.toFixed(2)}
-        <span class="${cls}">
-          (${sign}${pct.toFixed(2)}%)
-        </span>
-      `;
-        });
-
+        /* LIVE UPDATE INSIDE MODIFY MODAL */
         if (token === activeModifyToken) {
-          const ltpSpan = document.getElementById('mo-ltp');
-          if (ltpSpan) {
-            ltpSpan.innerText = ltp.toFixed(2);
+
+          const ltpEl = document.getElementById('mo-ltp');
+          if (ltpEl) ltpEl.innerText = ltp.toFixed(2);
+
+          if (circuitCache[token]) {
+            const limits = circuitCache[token];
+            document.getElementById('mo-circuit').innerText =
+              `₹${limits.lower} - ₹${limits.upper}`;
           }
         }
       };
 
-      socket.onerror = err => console.error('❌ Socket Error', err);
-      socket.onclose = () => console.warn('⚠️ Socket Closed');
+      socket.onerror = err => console.error('Socket error', err);
+      socket.onclose = () => console.warn('Socket closed');
     });
 
+    /* =====================================================
+       OPEN MODIFY ORDER MODAL
+    ===================================================== */
     function openModifyOrder(btn) {
       const order = JSON.parse(btn.dataset.order);
       activeModifyToken = order.symboltoken;
-      document.getElementById('mo-order-id').value     = order.orderid;
+
+      /* HIDDEN */
+      document.getElementById('mo-order-id').value = order.orderid;
       document.getElementById('mo-symbol-token').value = order.symboltoken;
-      document.getElementById('mo-variety').value      = order.variety;
-      document.getElementById('mo-symbol').value       = order.tradingsymbol;
-      document.getElementById('mo-side').value         = order.transactiontype;
-      document.getElementById('mo-ordertype').value    = order.ordertype;
-      document.getElementById('mo-qty').value          = order.quantity;
-      document.getElementById('mo-tradingsymbol').value      = order.tradingsymbol;
+      document.getElementById('mo-variety').value = order.variety;
+      document.getElementById('mo-tradingsymbol').value = order.tradingsymbol;
+
+      /* HEADER */
+      document.getElementById('mo-symbol-title').innerText = order.tradingsymbol;
+
+      const sideBadge = document.getElementById('mo-side-badge');
+      sideBadge.innerText = order.transactiontype;
+      sideBadge.className =
+        'badge ' + (order.transactiontype === 'BUY'
+          ? 'bg-success'
+          : 'bg-danger');
+
+      document.getElementById('mo-info-ordertype').innerText = order.ordertype;
+
+      /* PRICE CARDS */
+      document.getElementById('mo-order-price').innerText =
+        order.ordertype === 'MARKET'
+          ? 'AT MARKET'
+          : `₹${Number(order.price).toFixed(2)}`;
+
+      document.getElementById('mo-qty-card').innerText = order.quantity;
+
+      /* FORM */
+      document.getElementById('mo-ordertype').value = order.ordertype;
+      document.getElementById('mo-qty').value = order.quantity;
+
       const priceInput = document.getElementById('mo-price');
 
       if (order.ordertype === 'MARKET') {
@@ -192,52 +243,69 @@
         priceInput.placeholder = 'AT MARKET';
       } else {
         priceInput.disabled = false;
+        priceInput.placeholder = 'Enter price';
         priceInput.value = order.price;
       }
 
-      const ltpSpan = document.getElementById('mo-ltp');
-      if (ltpCache[order.symboltoken]) {
-        ltpSpan.innerText = ltpCache[order.symboltoken].toFixed(2);
-      } else {
-        ltpSpan.innerText = '—';
-      }
+      /* LTP */
+      document.getElementById('mo-ltp').innerText =
+        ltpCache[order.symboltoken]
+          ? ltpCache[order.symboltoken].toFixed(2)
+          : '—';
+
+      /* CIRCUIT */
+      document.getElementById('mo-circuit').innerText =
+        circuitCache[order.symboltoken]
+          ? `₹${circuitCache[order.symboltoken].lower} - ₹${circuitCache[order.symboltoken].upper}`
+          : '—';
+
+      /* RESET SUBMIT BUTTON */
+      const btnSubmit = document.getElementById('modifySubmitBtn');
+      btnSubmit.disabled = false;
+      btnSubmit.querySelector('.btn-text').classList.remove('d-none');
+      btnSubmit.querySelector('.spinner-border').classList.add('d-none');
+      btnSubmit.querySelector('.btn-loading-text').classList.add('d-none');
+
       new bootstrap.Modal(document.getElementById('editOrderModal')).show();
     }
 
-    function handleOrderTypeChange(type) {
+    /* =====================================================
+       ORDER TYPE CHANGE
+    ===================================================== */
+    document.addEventListener('change', (e) => {
+      if (e.target.id !== 'mo-ordertype') return;
 
       const priceInput = document.getElementById('mo-price');
 
-      if (type === 'MARKET') {
-        // MARKET → disable price
+      if (e.target.value === 'MARKET') {
         priceInput.value = '';
         priceInput.disabled = true;
         priceInput.placeholder = 'AT MARKET';
-        return;
-      }
-
-      // LIMIT → enable price
-      priceInput.disabled = false;
-      priceInput.placeholder = 'Enter limit price';
-
-      // ✅ AUTO-FILL FROM LIVE PRICE (ANGEL ONE STYLE)
-      if (
-        activeModifyToken &&
-        ltpCache[activeModifyToken]
-      ) {
-        priceInput.value = ltpCache[activeModifyToken].toFixed(2);
       } else {
-        priceInput.value = '';
+        priceInput.disabled = false;
+        priceInput.placeholder = 'Enter price';
+
+        if (activeModifyToken && ltpCache[activeModifyToken]) {
+          priceInput.value = ltpCache[activeModifyToken].toFixed(2);
+        }
       }
-    }
+    });
 
-    // Attach listener
+    /* =====================================================
+       SUBMIT SPINNER
+    ===================================================== */
     document.addEventListener('DOMContentLoaded', () => {
-      const orderTypeSelect = document.getElementById('mo-ordertype');
-      if (!orderTypeSelect) return;
+      const form = document.getElementById('editOrderForm');
+      if (!form) return;
 
-      orderTypeSelect.addEventListener('change', (e) => {
-        handleOrderTypeChange(e.target.value);
+      form.addEventListener('submit', () => {
+        const btn = document.getElementById('modifySubmitBtn');
+        if (!btn) return;
+
+        btn.disabled = true;
+        btn.querySelector('.btn-text').classList.add('d-none');
+        btn.querySelector('.spinner-border').classList.remove('d-none');
+        btn.querySelector('.btn-loading-text').classList.remove('d-none');
       });
     });
   </script>
@@ -539,37 +607,82 @@
   @include('_partials/_modals/modal-edit-user')
   <!-- /Modal -->
   <div class="modal fade" id="editOrderModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-simple">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-simple">
       <div class="modal-content">
-        <div class="modal-body">
+
+        <!-- HEADER -->
+        <div class="modal-header border-0 pb-0">
+          <div>
+            <h4 class="mb-1">
+              <span id="mo-symbol-title" class="fw-bold"></span>
+              <span class="badge rounded-pill bg-label-primary ms-2"
+                    style="font-size:0.65rem;font-weight:500;">
+              NSE
+            </span>
+            </h4>
+
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span id="mo-side-badge" class="badge"></span>
+
+              <span class="badge bg-label-primary" id="mo-info-ordertype">
+              LIMIT
+            </span>
+
+              <span class="badge bg-label-success">
+              DELIVERY
+            </span>
+
+              <span class="badge bg-label-secondary">
+              DAY
+            </span>
+            </div>
+          </div>
 
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
 
-          <h4 class="text-center mb-3">Modify Order</h4>
+        <!-- BODY -->
+        <div class="modal-body pt-4">
 
+          <!-- PRICE CARDS -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <small class="text-muted">Live Price</small>
+                <div class="fw-semibold fs-5">
+                  ₹ <span id="mo-ltp">—</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <small class="text-muted">Order Price</small>
+                <div class="fw-semibold fs-5" id="mo-order-price">—</div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <small class="text-muted">Quantity</small>
+                <div class="fw-semibold fs-5" id="mo-qty-card">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FORM -->
           <form id="editOrderForm"
                 method="POST"
                 action="{{ route('account.modify.order',request('account')->id) }}"
-                class="row g-4">
+                class="row g-3">
 
             @csrf
 
+            <!-- REQUIRED HIDDEN -->
             <input type="hidden" name="orderid" id="mo-order-id">
             <input type="hidden" name="symboltoken" id="mo-symbol-token">
             <input type="hidden" name="variety" id="mo-variety">
             <input type="hidden" name="tradingsymbol" id="mo-tradingsymbol">
-
-            <!-- SYMBOL -->
-            <div class="col-md-6">
-              <label class="form-label">Symbol</label>
-              <input type="text" class="form-control" id="mo-symbol" disabled>
-            </div>
-
-            <!-- SIDE -->
-            <div class="col-md-6">
-              <label class="form-label">Side</label>
-              <input type="text" class="form-control" id="mo-side" disabled>
-            </div>
 
             <!-- ORDER TYPE -->
             <div class="col-md-6">
@@ -583,31 +696,46 @@
             <!-- QUANTITY -->
             <div class="col-md-6">
               <label class="form-label">Quantity</label>
-              <input type="number" name="quantity" class="form-control" id="mo-qty" required>
+              <input type="number"
+                     name="quantity"
+                     class="form-control"
+                     id="mo-qty"
+                     required>
             </div>
 
             <!-- PRICE -->
             <div class="col-md-6">
               <label class="form-label">Price</label>
-              <input type="number" step="0.05" name="price" class="form-control" id="mo-price">
+              <input type="number"
+                     step="0.05"
+                     name="price"
+                     class="form-control"
+                     id="mo-price">
             </div>
 
-            <!-- LIVE LTP -->
+            <!-- CIRCUIT -->
             <div class="col-md-6">
-              <label class="form-label">Live Price</label>
-              <div class="form-control bg-light">
-                LTP ₹<span id="mo-ltp">—</span>
+              <label class="form-label">Circuit</label>
+              <div class="alert alert-info d-flex justify-content-between align-items-center py-2 mb-0"
+                   style="height:38px">
+                <span class="small fw-semibold">Range</span>
+                <span class="small fw-semibold" id="mo-circuit">—</span>
               </div>
             </div>
 
-            <div class="col-12 text-center mt-3">
-              <button type="submit" class="btn btn-primary me-2 d-inline-flex align-items-center justify-content-center"
-                id="modifySubmitBtn" >
+            <!-- ACTIONS -->
+            <div class="col-12 text-center mt-4">
+              <button type="submit"
+                      class="btn btn-primary me-2 d-inline-flex align-items-center justify-content-center"
+                      id="modifySubmitBtn">
                 <span class="btn-text">Modify Order</span>
-                <span class="spinner-border spinner-border-sm d-none ms-2" role="status"></span>
+                <span class="spinner-border spinner-border-sm d-none ms-2"></span>
                 <span class="btn-loading-text d-none ms-2">Modifying...</span>
               </button>
-              <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+
+              <button type="button"
+                      class="btn btn-label-secondary"
+                      data-bs-dismiss="modal">
                 Cancel
               </button>
             </div>
