@@ -31,7 +31,6 @@ class InstrumentSeeder extends Seeder
     DB::disableQueryLog();
 
     collect($data)->chunk(5000)->each(function ($chunk, $index) {
-      $this->command->line('Processing chunk #' . ($index + 1));
 
       $symbols = collect($chunk)
         ->pluck('symbol')
