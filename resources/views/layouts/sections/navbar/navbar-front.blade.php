@@ -54,7 +54,7 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
             <a class="nav-link fw-medium" href="{{ route('home') }}#landingContact">Contact
               us</a>
           </li>
-          <li class="nav-item mega-dropdown {{ $activeClass }}">
+          {{--<li class="nav-item mega-dropdown {{ $activeClass }}">
             <a href="javascript:void(0);"
               class="nav-link dropdown-toggle navbar-ex-14-mega-dropdown mega-dropdown fw-medium" aria-expanded="false"
               data-bs-toggle="mega-dropdown" data-trigger="hover">
@@ -238,7 +238,7 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
                 </div>
               </div>
             </div>
-          </li>
+          </li>--}}
           <li class="nav-item">
             <a class="nav-link fw-medium" href="{{ route('dashboard') }}" target="_blank">Admin</a>
           </li>

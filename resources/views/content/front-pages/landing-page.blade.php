@@ -36,7 +36,7 @@ $configData = Helper::appClasses();
         class="position-absolute top-0 start-50 translate-middle-x object-fit-cover w-100 h-100" data-speed="1" />
       <div class="container">
         <div class="hero-text-box text-center position-relative">
-          <h1 class="text-primary hero-title display-6 fw-extrabold">One dashboard to manage all angelone accounts
+          <h1 class="text-primary hero-title display-6 fw-extrabold">One dashboard to manage all Demat accounts
           </h1>
           <h2 class="hero-sub-title h6 mb-6">
             Production-ready & easy to use Admin Template<br class="d-none d-lg-block" />
