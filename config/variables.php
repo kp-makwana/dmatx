@@ -1,7 +1,7 @@
 <?php
 // Variables
 return [
-  "creatorName" => "Pixinvent",
+  "creatorName" => "Dmatx",
   "creatorUrl" => "https://pixinvent.com",
   "templateName" => "Dmatx",
   "templateSuffix" => "Dmatx",
