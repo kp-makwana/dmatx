@@ -12,11 +12,6 @@
   @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bootstrap-select/bootstrap-select.js', 'resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/typeahead-js/typeahead.js', 'resources/assets/vendor/libs/tagify/tagify.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
 @endsection
 
-<!-- Page Scripts -->
-@section('page-script')
-  {{--  @vite(['resources/assets/js/form-validation.js'])--}}
-@endsection
-
 @section('content')
   <div class="row">
     <div class="col-12">
@@ -35,35 +30,35 @@
         </div>
 
         <div class="card-body">
-          <form method="POST" action="{{ route('accounts.store') }}" class="row g-4">
+          <form method="POST" action="{{ route('angle-one.submit.step.one') }}" class="row g-4">
             @csrf
 
             {{-- Full Name --}}
             <div class="col-md-6">
-              <label class="form-label" for="name">
+              <label class="form-label" for="account_name">
                 Full Name <span class="text-danger">*</span>
               </label>
 
               <div class="input-group input-group-merge">
                 <input
                   type="text"
-                  id="name"
-                  name="name"
-                  class="form-control @error('name') is-invalid @enderror"
-                  value="{{ old('name') }}"
-                  placeholder="e.g. Kiran Kumar"
+                  id="account_name"
+                  name="account_name"
+                  class="form-control @error('account_name') is-invalid @enderror"
+                  value="{{ old('account_name') }}"
+                  placeholder="e.g. John Deo"
                   autocomplete="off"
                 />
                 <span class="input-group-text cursor-pointer">
-        <i
-          class="icon-base ti tabler-help-circle text-body-secondary"
-          data-bs-toggle="tooltip"
-          title="Enter your full name as registered with AngelOne"
-        ></i>
-      </span>
+                  <i
+                    class="icon-base ti tabler-help-circle text-body-secondary"
+                    data-bs-toggle="tooltip"
+                    title="Enter your full name as registered with AngelOne"
+                  ></i>
+                </span>
               </div>
 
-              @error('name')
+              @error('account_name')
               <div class="invalid-feedback d-block">{{ $message }}</div>
               @enderror
             </div>
@@ -85,12 +80,12 @@
                   autocomplete="off"
                 />
                 <span class="input-group-text cursor-pointer">
-        <i
-          class="icon-base ti tabler-help-circle text-body-secondary"
-          data-bs-toggle="tooltip"
-          title="Enter the email linked with your AngelOne account"
-        ></i>
-      </span>
+                  <i
+                    class="icon-base ti tabler-help-circle text-body-secondary"
+                    data-bs-toggle="tooltip"
+                    title="Enter the email linked with your AngelOne account"
+                  ></i>
+                </span>
               </div>
 
               @error('email')
@@ -100,61 +95,61 @@
 
             {{-- Mobile Number --}}
             <div class="col-md-6">
-              <label class="form-label" for="mobileno">
+              <label class="form-label" for="mobile">
                 Mobile Number <span class="text-danger">*</span>
               </label>
 
               <div class="input-group input-group-merge">
                 <input
                   type="text"
-                  id="mobileno"
-                  name="mobileno"
+                  id="mobile"
+                  name="mobile"
                   maxlength="10"
-                  class="form-control @error('mobileno') is-invalid @enderror"
-                  value="{{ old('mobileno') }}"
+                  class="form-control @error('mobile') is-invalid @enderror"
+                  value="{{ old('mobile') }}"
                   placeholder="e.g. 9876543210"
                   autocomplete="off"
                 />
                 <span class="input-group-text cursor-pointer">
-        <i
-          class="icon-base ti tabler-help-circle text-body-secondary"
-          data-bs-toggle="tooltip"
-          title="Enter the mobile number registered with AngelOne"
-        ></i>
-      </span>
+                  <i
+                    class="icon-base ti tabler-help-circle text-body-secondary"
+                    data-bs-toggle="tooltip"
+                    title="Enter the mobile number registered with AngelOne"
+                  ></i>
+                </span>
               </div>
 
-              @error('mobileno')
+              @error('mobile')
               <div class="invalid-feedback d-block">{{ $message }}</div>
               @enderror
             </div>
 
             {{-- Client Code --}}
             <div class="col-md-6">
-              <label class="form-label" for="clientcode">
-                Client Code <span class="text-danger">*</span>
+              <label class="form-label" for="client_id">
+                Client ID <span class="text-danger">*</span>
               </label>
 
               <div class="input-group input-group-merge">
                 <input
                   type="text"
-                  id="clientcode"
-                  name="clientcode"
-                  class="form-control @error('clientcode') is-invalid @enderror"
-                  value="{{ old('clientcode') }}"
+                  id="client_id"
+                  name="client_id"
+                  class="form-control @error('client_id') is-invalid @enderror"
+                  value="{{ old('client_id') }}"
                   placeholder="e.g. AABBCC11"
                   autocomplete="off"
                 />
                 <span class="input-group-text cursor-pointer">
-        <i
-          class="icon-base ti tabler-help-circle text-body-secondary"
-          data-bs-toggle="tooltip"
-          title="Enter the Client Code provided by AngelOne (Profile / Dashboard)"
-        ></i>
-      </span>
+                  <i
+                    class="icon-base ti tabler-help-circle text-body-secondary"
+                    data-bs-toggle="tooltip"
+                    title="Enter the Client Code provided by AngelOne (Profile / Dashboard)"
+                  ></i>
+                </span>
               </div>
 
-              @error('clientcode')
+              @error('client_id')
               <div class="invalid-feedback d-block">{{ $message }}</div>
               @enderror
             </div>
@@ -174,12 +169,12 @@
                   placeholder="Enter strong password"
                 />
                 <span class="input-group-text cursor-pointer">
-        <i
-          class="icon-base ti tabler-help-circle text-body-secondary"
-          data-bs-toggle="tooltip"
-          title="Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
-        ></i>
-      </span>
+                  <i
+                    class="icon-base ti tabler-help-circle text-body-secondary"
+                    data-bs-toggle="tooltip"
+                    title="Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
+                  ></i>
+                </span>
               </div>
 
               @error('password')
