@@ -268,7 +268,7 @@
                     <div class="card h-100">
                       <div class="card-body text-body d-flex flex-column justify-content-between h-100">
                         <div class="mb-4">
-                          <img src="{{ asset('assets/img/front-pages/branding/logo-1.png') }}" alt="client logo"
+                          <img src="{{ asset('assets/img/front-pages/branding/angle.png') }}" alt="client logo"
                                class="client-logo img-fluid" />
                         </div>
                         <p>
@@ -300,7 +300,7 @@
                     <div class="card h-100">
                       <div class="card-body text-body d-flex flex-column justify-content-between h-100">
                         <div class="mb-4">
-                          <img src="{{ asset('assets/img/front-pages/branding/logo-2.png') }}" alt="client logo"
+                          <img src="{{ asset('assets/img/front-pages/branding/dhan.png') }}" alt="client logo"
                                class="client-logo img-fluid" />
                         </div>
                         <p>
@@ -332,7 +332,7 @@
                     <div class="card h-100">
                       <div class="card-body text-body d-flex flex-column justify-content-between h-100">
                         <div class="mb-4">
-                          <img src="{{ asset('assets/img/front-pages/branding/logo-3.png') }}" alt="client logo"
+                          <img src="{{ asset('assets/img/front-pages/branding/grow.png') }}" alt="client logo"
                                class="client-logo img-fluid" />
                         </div>
                         <p>
@@ -364,7 +364,7 @@
                     <div class="card h-100">
                       <div class="card-body text-body d-flex flex-column justify-content-between h-100">
                         <div class="mb-4">
-                          <img src="{{ asset('assets/img/front-pages/branding/logo-4.png') }}" alt="client logo"
+                          <img src="{{ asset('assets/img/front-pages/branding/zirodha.png') }}" alt="client logo"
                                class="client-logo img-fluid" />
                         </div>
                         <p>
