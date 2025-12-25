@@ -60,9 +60,9 @@
             />
           </span>
 
-              <button class="btn btn-primary btn-lg" type="button">
+              <a href="{{ route('login') }}" class="btn btn-primary btn-lg" type="button">
                 Request Early Access
-              </button>
+              </a>
             </div>
           </div>
 
