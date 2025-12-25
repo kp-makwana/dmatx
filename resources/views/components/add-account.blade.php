@@ -1,59 +1,113 @@
-<div class="modal fade" id="addAccountModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-simple modal-add-account">
+<!-- Add AngleOne Account Modal -->
+<div class="modal fade" id="addAngleOneAccount" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-simple">
     <div class="modal-content">
       <div class="modal-body">
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
-        <div class="text-center mb-6">
-          <h4 class="mb-2">Add New Smart-API Account</h4>
-          <p>Enter your Angel Smart-API credentials securely.</p>
+        <div class="text-center mb-4">
+          <h4 class="mb-2">Add AngleOne Account</h4>
+          <p>Select how you want to add your account</p>
         </div>
 
-        <form id="addAccountForm"
-              class="row g-6"
-              method="POST"
-              action="{{ route('accounts.store') }}">
-          @csrf
+        <form id="addAccountMethodForm">
 
-          <div class="col-12 col-md-6">
-            <label class="form-label" for="nickname">Account Nickname <span class="text-danger">*</span></label>
-            <input type="text" id="nickname" name="nickname" class="form-control" placeholder="My Trading Account"/>
+          <!-- SINGLE ROW OPTIONS -->
+          <div class="row g-4 mb-4">
+
+            <!-- AUTO ADD VIA OTP -->
+            <div class="col-md-6">
+              <div class="form-check custom-option custom-option-icon h-100">
+                <label class="form-check-label custom-option-content h-100">
+                  <input
+                    class="form-check-input d-none"
+                    type="radio"
+                    name="accountMethod"
+                    value="otp"
+                    checked
+                  />
+                  <span class="custom-option-body text-center">
+                    <!-- ICON -->
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                         xmlns="http://www.w3.org/2000/svg" class="mb-2">
+                      <path
+                        d="M3.5 7C3.5 5.343 4.843 4 6.5 4H21.5C23.157 4 24.5 5.343 24.5 7V21C24.5 22.657 23.157 24 21.5 24H6.5C4.843 24 3.5 22.657 3.5 21V7Z"
+                        stroke="currentColor" stroke-width="2" />
+                      <path
+                        d="M8 14H20M8 10H20M8 18H14"
+                        stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" />
+                    </svg>
+
+                    <span class="custom-option-title d-block">
+                      Auto Add via OTP
+                    </span>
+                    <small class="d-block">
+                      Login using mobile and email OTP
+                    </small>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- ADD VIA API + TOTP -->
+            <div class="col-md-6">
+              <div class="form-check custom-option custom-option-icon h-100">
+                <label class="form-check-label custom-option-content h-100">
+                  <input
+                    class="form-check-input d-none"
+                    type="radio"
+                    name="accountMethod"
+                    value="api"
+                  />
+                  <span class="custom-option-body text-center">
+                    <!-- ICON -->
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                         xmlns="http://www.w3.org/2000/svg" class="mb-2">
+                      <path
+                        d="M14 3.5L22.5 8.5V19.5L14 24.5L5.5 19.5V8.5L14 3.5Z"
+                        stroke="currentColor" stroke-width="2" />
+                      <path
+                        d="M14 14V24.5M22.5 8.5L14 14L5.5 8.5"
+                        stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" />
+                    </svg>
+
+                    <span class="custom-option-title d-block">
+                      API Key & TOTP Secrete
+                    </span>
+                    <small class="d-block">
+                      Use existing API key & TOTP Secrete
+                    </small>
+                  </span>
+                </label>
+              </div>
+            </div>
+
           </div>
 
-          <div class="col-12 col-md-6">
-            <label class="form-label" for="client_id">Client ID <span class="text-danger">*</span></label>
-            <input type="text" id="client_id" name="client_id" class="form-control" placeholder="Enter Client ID"/>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <label class="form-label" for="pin">Angel 4 Digit Login Pin <span class="text-danger">*</span></label>
-            <input type="text" id="pin" name="pin" class="form-control" placeholder="Enter 4 Digit Pin"/>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <label class="form-label" for="api_key">API Key <span class="text-danger">*</span></label>
-            <input type="text" id="api_key" name="api_key" class="form-control" placeholder="Enter API Key"/>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <label class="form-label" for="client_secret">Client Secret</label>
-            <input type="text" id="client_secret" name="client_secret" class="form-control" placeholder="Enter Client Secret"/>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <label class="form-label" for="totp_secret">TOTP Secret</label>
-            <input type="text" id="totp_secret" name="totp_secret" class="form-control" placeholder="Enter TOTP Secret"/>
-          </div>
-
-          <div class="col-12 text-center">
-            <button type="submit" class="btn btn-primary me-3">Save Account</button>
-            <button type="reset" class="btn btn-label-secondary" data-bs-dismiss="modal">Cancel</button>
+          <!-- NEXT BUTTON -->
+          <div class="text-center">
+            <button type="button" class="btn btn-primary px-5" id="nextBtn">
+              Next
+            </button>
           </div>
 
         </form>
-
       </div>
     </div>
   </div>
 </div>
+<script>
+  document.getElementById("nextBtn").addEventListener("click", function () {
+    const selected = document.querySelector(
+      'input[name="accountMethod"]:checked'
+    ).value;
+
+    if (selected === "otp") {
+      window.location.href = "{{ route('angle-one.create.step.one') }}";
+    } else {
+      window.location.href = "{{ route('accounts.create') }}";
+    }
+  });
+</script>

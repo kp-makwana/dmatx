@@ -228,7 +228,7 @@
     @endif
   </div>
 
-  @include('components.add-accounts')
+  @include('components.add-account')
 
   <!-- DataTable with Buttons -->
   <style>
