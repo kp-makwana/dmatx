@@ -1596,9 +1596,9 @@ TemplateCustomizer.DIRECTIONS = [
 // Theme setting language
 TemplateCustomizer.LANGUAGES = {
   en: {
-    panel_header: 'Template Customizer',
+    panel_header: 'Dmatx Theme Customizer',
     panel_sub_header: 'Customize and preview in real time',
-    theming_header: 'Theming',
+    theming_header: 'Theme',
     color_label: 'Primary Color',
     theme_label: 'Theme',
     skin_label: 'Skins',

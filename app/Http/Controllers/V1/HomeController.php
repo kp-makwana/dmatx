@@ -17,6 +17,6 @@ class HomeController extends Controller
   public function index()
   {
     $pageConfigs = ['myLayout' => 'front'];
-    return view('content.front-pages.landing-page', ['pageConfigs' => $pageConfigs]);
+    return view('frontend.index', ['pageConfigs' => $pageConfigs]);
   }
 }

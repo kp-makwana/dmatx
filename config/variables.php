@@ -1,32 +1,47 @@
 <?php
 // Variables
 return [
+  // Brand
   "creatorName" => "Dmatx",
-  "creatorUrl" => "https://pixinvent.com",
+  "creatorUrl" => "https://dmatx.com",
+
+  // Template Info
   "templateName" => "Dmatx",
   "templateSuffix" => "Dmatx",
-  "templateVersion" => "3.0.0",
+  "templateVersion" => "1.0.0",
   "templateFree" => false,
-  "templateDescription" => "Manage your multiple demat Accounts",
-  "templateKeyword" => "Dmatx,Multiple demat,Multiple demat manage",
-  "licenseUrl" => "https://themeforest.net/licenses/standard",
-  "livePreview" => "https://demos.pixinvent.com/vuexy-html-laravel-admin-template/demo-1/",
-  "productPage" => "https://themeforest.net/item/vuexy-vuejs-html-laravel-admin-dashboard-template/23328599",
-  "support" => "https://pixinvent.ticksy.com/",
-  "moreThemes" => "https://themeforest.net/user/pixinvent/portfolio",
-  "ogTitle" => "Manage your multiple demat Accounts",
-  "ogImage" => "https://pixinvent.com/wp-content/uploads/2023/06/vuexy-hero-image.png",
-  "ogType" => "product",
-  "documentation" => "https://demos.pixinvent.com/vuexy-html-admin-template/documentation",
-  "generator" => "",
-  "changelog" => "https://demos.pixinvent.com/vuexy/changelog.html",
-  "repository" => "https://github.com/pixinvent/vuexy-html-laravel-admin-template",
-  "gitRepo" => "vuexy-html-laravel-admin-template",
-  "gitRepoAccess" => "https://tools.pixinvent.com/github/github-access",
-  "githubFreeUrl" => "https://github.com/pixinvent",
-  "facebookUrl" => "https://www.facebook.com/pixinvents/",
-  "twitterUrl" => "https://x.com/pixinvents",
-  "githubUrl" => "https://github.com/pixinvent",
-  "dribbbleUrl" => "https://dribbble.com/pixinvent",
-  "instagramUrl" => "https://www.instagram.com/pixinvents/"
+
+  // SEO
+  "templateDescription" => "Dmatx helps you securely manage multiple Demat accounts from a single dashboard.",
+  "templateKeyword" => "Dmatx, multiple demat accounts, demat portfolio tracker, investor dashboard",
+
+  // Product & License
+  "licenseUrl" => "https://dmatx.com/terms",
+  "livePreview" => "https://dmatx.com",
+  "productPage" => "https://dmatx.com",
+  "support" => "https://dmatx.com/support",
+  "moreThemes" => "https://dmatx.com",
+
+  // Open Graph
+  "ogTitle" => "Dmatx – Manage Multiple Demat Accounts Easily",
+  "ogImage" => "https://dmatx.com/assets/og-image.png",
+  "ogType" => "website",
+
+  // Docs & Meta
+  "documentation" => "https://dmatx.com/docs",
+  "generator" => "Dmatx Platform",
+  "changelog" => "https://dmatx.com/changelog",
+
+  // Repository (optional / private)
+  "repository" => "",
+  "gitRepo" => "",
+  "gitRepoAccess" => "",
+
+  // Social (use your real handles later)
+  "githubFreeUrl" => "",
+  "githubUrl" => "",
+  "facebookUrl" => "https://facebook.com/dmatx",
+  "twitterUrl" => "https://x.com/dmatx",
+  "dribbbleUrl" => "",
+  "instagramUrl" => "https://instagram.com/dmatx"
 ];
