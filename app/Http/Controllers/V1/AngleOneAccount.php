@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\Accounts\AngleOneAccountCreateRequest;
 use App\Models\V1\Account;
 use App\Services\AccountService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -41,11 +42,40 @@ class AngleOneAccount extends Controller
 
   public function createStepTwo(Account $account)
   {
-    dd($account);
+    $this->authorize('create', Account::class);
+    $response = $this->service->createStepTwo($account);
+    if (!$response['success']) {
+      Session::flash('error','Account not added properly');
+      return redirect()->back();
+    }
+    $pageConfigs = ['myLayout' => 'horizontal'];
+    return view('angle-one-account.create-step-two',compact('account','pageConfigs'));
   }
 
-  public function submitStepTwo()
+  public function emailOtpResend(Account $account)
   {
+    $this->authorize('update', $account);
+    $response = $this->service->emailOtpResend($account);
+    if (!$response['success']) {
+        Session::flash('error', $response['message']);
+        return $this->errorResponse($response['message']);
+    }
+    return $this->successResponse('Email OTP Resend');
+  }
 
+  public function mobileOtpResend(Account $account)
+  {
+    $this->authorize('update', $account);
+    $response = $this->service->mobileOtpResend($account);
+    if (!$response['success']) {
+      Session::flash('error', $response['message']);
+      return $this->errorResponse($response['message']);
+    }
+    return $this->successResponse('Mobile OTP Resend');
+  }
+
+  public function submitStepTwo(Request $request,Account $account)
+  {
+    dd($request->all(),$account);
   }
 }

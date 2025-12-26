@@ -11,33 +11,30 @@ class AngelSmartApiService
 
   public function __construct()
   {
-    $this->client = new Client([
-      'timeout' => 15,
-    ]);
+    $this->client = new Client(['timeout' => 15]);
   }
 
   /**
-   * AngelOne SmartAPI Signup
+   * Helper to get standard headers
    */
-  public function signup(array $payload, $user): array
+  private function getHeaders(): array
   {
-    $endpoint = $this->baseUrl . '/rest/auth/angelbroking/client/v1/signup';
-    $headers = [
+    return [
       'Accept' => 'application/json',
       'Content-Type' => 'application/json',
       'Origin' => 'https://smartapi.angelbroking.com',
       'Referer' => 'https://smartapi.angelbroking.com/',
       'X-SourceID' => 'WEB',
       'X-UserType' => 'USER',
-      'X-ClientLocalIP' => '127.0.0.1',
-      'X-ClientPublicIP' => '127.0.0.1',
+      'X-ClientLocalIP' => request()->ip() ?? '127.0.0.1',
+      'X-ClientPublicIP' => request()->ip() ?? '127.0.0.1',
       'X-MACaddress' => '00:00:00:00:00:00',
-      'X-PrivateKey' => 'smartapi_key',
+      'X-PrivateKey' => 'smartapi_key', // Consider using config('services.angel.key')
     ];
+  }
 
-    /**
-     * Required Payload Structure
-     */
+  public function signup(array $payload, $user): array
+  {
     $requestPayload = [
       'name' => $payload['account_name'],
       'email' => $payload['email'],
@@ -47,26 +44,34 @@ class AngelSmartApiService
       'stateresidence' => 'state',
     ];
 
-    /*$response = $this->client->post($endpoint, [
-      'headers' => $headers,
-      'json'    => $requestPayload,
+    $response = $this->client->post($this->baseUrl . '/rest/auth/angelbroking/client/v1/signup', [
+      'headers' => $this->getHeaders(),
+      'json' => $requestPayload,
     ]);
-    $result = json_decode($response->getBody(), true);*/
 
-    // TODO remove static code
-    return [
-      "status" => true,
-      "message" => "Please verify email and mobile otp.",
-      "errorcode" => "",
-      "data" => null,
-    ];
-
-    /*return [
-      'message'   => 'Failed to send otp.',
-      'errorcode' => 'AB1040',
-      'status'    => false,
-      'data'      => null,
-    ];*/
+    return json_decode($response->getBody(), true);
   }
 
+  public function emailOtpResend(string $email): array
+  {
+    $response = $this->client->post($this->baseUrl . '/rest/auth/angelbroking/client/v1/sendEmailOTP', [
+      'headers' => $this->getHeaders(),
+      'json' => ['email' => $email],
+    ]);
+
+    return json_decode($response->getBody(), true);
+  }
+
+  public function mobileOtpResend(string $mobile, string $email): array
+  {
+    $response = $this->client->post($this->baseUrl . '/rest/auth/angelbroking/client/v1/sendSMSOTP', [
+      'headers' => $this->getHeaders(),
+      'json' => [
+        'mobileNumber' => $mobile,
+        'email' => $email
+      ],
+    ]);
+
+    return json_decode($response->getBody(), true);
+  }
 }

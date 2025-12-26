@@ -47,7 +47,7 @@
                   class="form-control @error('account_name') is-invalid @enderror"
                   value="{{ old('account_name') }}"
                   placeholder="e.g. John Deo"
-                  autocomplete="off"
+{{--                  autocomplete="off"--}}
                 />
                 <span class="input-group-text cursor-pointer">
                   <i
@@ -77,7 +77,7 @@
                   class="form-control @error('email') is-invalid @enderror"
                   value="{{ old('email') }}"
                   placeholder="e.g. abc@test.com"
-                  autocomplete="off"
+{{--                  autocomplete="off"--}}
                 />
                 <span class="input-group-text cursor-pointer">
                   <i
@@ -108,7 +108,7 @@
                   class="form-control @error('mobile') is-invalid @enderror"
                   value="{{ old('mobile') }}"
                   placeholder="e.g. 9876543210"
-                  autocomplete="off"
+{{--                  autocomplete="off"--}}
                 />
                 <span class="input-group-text cursor-pointer">
                   <i
@@ -138,7 +138,7 @@
                   class="form-control @error('client_id') is-invalid @enderror"
                   value="{{ old('client_id') }}"
                   placeholder="e.g. AABBCC11"
-                  autocomplete="off"
+{{--                  autocomplete="off"--}}
                 />
                 <span class="input-group-text cursor-pointer">
                   <i

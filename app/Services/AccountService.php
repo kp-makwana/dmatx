@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Http\Resources\V1\Account\ListResource;
-use App\Jobs\AngelLoginJob;
 use App\Models\V1\Account;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -222,8 +221,28 @@ class AccountService
         DB::rollBack();
         return $response;
       }
+      $account->status = Account::STATUS_SIGNUP_FORM_SUBMITTED;
+      $account->save();
       $response['data'] = $account;
       DB::commit();
       return $response;
+  }
+
+  public function createStepTwo($account)
+  {
+    if ($account->status == Account::STATUS_SIGNUP_FORM_SUBMITTED) {
+      return ['success' => true,'account' => $account];
+    }
+    return ['success' => false,'error' => 'Account not yet processed'];
+  }
+
+  public function emailOtpResend($account)
+  {
+    return resolve(AngelSmartApiService::class)->emailOtpResend($account->email);
+  }
+
+  public function mobileOtpResend($account)
+  {
+    return resolve(AngelSmartApiService::class)->mobileOtpResend($account->mobile,$account->email);
   }
 }

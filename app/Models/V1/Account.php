@@ -13,4 +13,6 @@ class Account extends Model
     'net' => 'decimal:2',
     'amount_used' => 'decimal:2',
   ];
+
+  public const STATUS_SIGNUP_FORM_SUBMITTED = 'signup_form_submitted';
 }
