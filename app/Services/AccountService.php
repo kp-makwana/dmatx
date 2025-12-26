@@ -245,4 +245,24 @@ class AccountService
   {
     return resolve(AngelSmartApiService::class)->mobileOtpResend($account->mobile,$account->email);
   }
+
+  public function submitStepTwo($account,$validated)
+  {
+    $emailValidateResponse = resolve(AngelSmartApiService::class)->validateEmailOTP($account->email,$validated['email_otp']);
+    $mobileValidateResponse = resolve(AngelSmartApiService::class)->validateSMSOTP($account->mobile,$account->email,$validated['mobile_otp']);
+    if (!$emailValidateResponse['status']){
+      $errors['email_otp'] = $email['message'] ?? 'Invalid email OTP';
+    }
+    if (!$mobileValidateResponse['status']){
+      $errors['mobile_otp'] = $mobile['message'] ?? 'Invalid mobile OTP';
+    }
+    if (empty($errors)){
+      $account->status = Account::STATUS_SIGNUP_SUCCESS;
+      $account->save();
+    }
+    return [
+      'email' => $emailValidateResponse,
+      'mobile' => $mobileValidateResponse,
+    ];
+  }
 }

@@ -33,6 +33,9 @@
                            class="form-control auth-input h-px-50 text-center numeral-mask otp-input">
                   @endfor
                 </div>
+                @error('email_otp')
+                  <div class="text-danger small mb-2">{{ $message }}</div>
+                @enderror
 
                 <input type="hidden" name="email_otp">
 
@@ -73,6 +76,9 @@
                            class="form-control auth-input h-px-50 text-center numeral-mask otp-input">
                   @endfor
                 </div>
+                @error('mobile_otp')
+                  <div class="text-danger small mb-2">{{ $message }}</div>
+                @enderror
 
                 <input type="hidden" name="mobile_otp">
 

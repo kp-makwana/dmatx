@@ -4,11 +4,12 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\Accounts\AngleOneAccountCreateRequest;
+use App\Http\Requests\V1\Accounts\OTPValidateRequest;
 use App\Models\V1\Account;
 use App\Services\AccountService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 
 class AngleOneAccount extends Controller
 {
@@ -74,8 +75,28 @@ class AngleOneAccount extends Controller
     return $this->successResponse('Mobile OTP Resend');
   }
 
-  public function submitStepTwo(Request $request,Account $account)
+  public function submitStepTwo(OTPValidateRequest $request,Account $account)
   {
-    dd($request->all(),$account);
+    $validated = $request->validated();
+    $this->authorize('update', $account);
+    $response = $this->service->submitStepTwo($account,$validated);
+    $email = $response['email'];
+    $mobile = $response['mobile'];
+    if (!$email['status']){
+      $errors['email_otp'] = $email['message'] ?? 'Invalid email OTP';
+    }
+    if (!$mobile['status']){
+      $errors['mobile_otp'] = $mobile['message'] ?? 'Invalid mobile OTP';
+    }
+    if (! empty($errors)) {
+      throw ValidationException::withMessages($errors);
+    }
+    Session::flash('success', 'OTP verified successfully');
+    return redirect()->route('angle-one.create.step.three', ['account' => $account->id]);
+  }
+
+  public function createStepThree()
+  {
+
   }
 }

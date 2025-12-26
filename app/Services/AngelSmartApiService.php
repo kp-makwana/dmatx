@@ -74,4 +74,35 @@ class AngelSmartApiService
 
     return json_decode($response->getBody(), true);
   }
+
+  public function validateEmailOTP(string $email, string $otp): array
+  {
+    $response = $this->client->post($this->baseUrl . '/rest/auth/angelbroking/client/v1/validateEmailOTP', [
+      'headers' => $this->getHeaders(),
+      'json'    => [
+        'email' => $email,
+        'otp'   => $otp,
+      ],
+    ]);
+
+    return json_decode($response->getBody(), true);
+  }
+
+  /**
+   * Validate SMS (Mobile) OTP
+   */
+  public function validateSMSOTP(string $mobile, string $email, string $otp): array
+  {
+    $payload = [
+      'mobileNumber' => $mobile,
+      'email'        => $email,
+      'otp'          => $otp,
+    ];
+    $response = $this->client->post($this->baseUrl . '/rest/auth/angelbroking/client/v1/validateSMSOTP', [
+      'headers' => $this->getHeaders(),
+      'json'    => $payload,
+    ]);
+
+    return json_decode($response->getBody(), true);
+  }
 }

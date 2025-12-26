@@ -453,13 +453,18 @@ Route::middleware('auth')->group(function () {
   });
 
   Route::prefix('angle-one')->name('angle-one.')->group(function () {
+    // Step 1
     Route::get('account/step-one', [AngleOneAccount::class, 'createStepOne'])->name('create.step.one');
     Route::post('account/step-one', [AngleOneAccount::class, 'submitStepOne'])->name('submit.step.one');
+
+    // Step 2
     Route::get('account/step-two/{account}', [AngleOneAccount::class, 'createStepTwo'])->name('create.step.two');
     Route::post('account/step-two/{account}', [AngleOneAccount::class, 'submitStepTwo'])->name('submit.step.two');
-
     Route::post('account/resend-otp/{account}/email', [AngleOneAccount::class, 'emailOtpResend'])->name('email.otp.resend');
     Route::post('account/resend-otp/{account}/mobile', [AngleOneAccount::class, 'mobileOtpResend'])->name('mobile.otp.resend');
+
+    // Step 3
+    Route::get('account/step-three/{account}', [AngleOneAccount::class, 'createStepThree'])->name('create.step.three');
   });
 });
 
