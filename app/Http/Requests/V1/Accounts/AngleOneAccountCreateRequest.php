@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\V1\Accounts;
 
+use App\Rules\AngleOneSignUpPasswordRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AngleOneAccountCreateRequest extends FormRequest
@@ -26,7 +27,7 @@ class AngleOneAccountCreateRequest extends FormRequest
         'email' => ['required','email','max:255',],
         'mobile' => ['required','digits:10'],
         'client_id' => ['required','string'],
-        'password' => ['required','confirmed'],
+        'password' => ['required','confirmed',new AngleOneSignUpPasswordRule()],
       ];
     }
 }

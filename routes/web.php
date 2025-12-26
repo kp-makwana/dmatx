@@ -455,6 +455,8 @@ Route::middleware('auth')->group(function () {
   Route::prefix('angle-one')->name('angle-one.')->group(function () {
     Route::get('account/step-one', [AngleOneAccount::class, 'createStepOne'])->name('create.step.one');
     Route::post('account/step-one', [AngleOneAccount::class, 'submitStepOne'])->name('submit.step.one');
+    Route::get('account/step-two/{account}', [AngleOneAccount::class, 'createStepTwo'])->name('create.step.two');
+    Route::post('account/step-two', [AngleOneAccount::class, 'submitStepTwo'])->name('submit.step.two');
   });
 });
 

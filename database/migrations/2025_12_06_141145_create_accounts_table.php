@@ -19,9 +19,12 @@ return new class extends Migration
         // Basic Account Metadata
         $table->string('nickname')->nullable();
         $table->string('account_name')->nullable();
+        $table->string('email')->nullable();
+        $table->string('mobile')->nullable();
+        $table->string('password')->nullable();
         $table->string('client_id');             // Smart-API Client ID
-        $table->string('pin');             // Smart-API Client ID
-        $table->string('api_key');               // API Key
+        $table->string('pin')->nullable();             // Smart-API Client ID
+        $table->string('api_key')->nullable();               // API Key
         $table->string('client_secret')->nullable();
         $table->string('totp_secret')->nullable();
 

@@ -208,4 +208,22 @@ class AccountService
   {
     return resolve(AngelService::class)->placeOrder($account,$payload);
   }
+
+  public function stepOne($validatedData,$user)
+  {
+      DB::beginTransaction();
+      $account = new Account();
+      $validatedData['user_id'] = $user->id;
+      $account->fill($validatedData);
+      $account->save();
+
+      $response = resolve(AngelSmartApiService::class)->signUp($account->toArray(),$user);;
+      if (!$response['status']) {
+        DB::rollBack();
+        return $response;
+      }
+      $response['data'] = $account;
+      DB::commit();
+      return $response;
+  }
 }
