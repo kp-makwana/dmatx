@@ -36,16 +36,10 @@ class AccountController extends Controller
   public function store(StoreRequest $request)
   {
     $this->authorize('create', Account::class);
-    try {
-      $this->service->create($request->validated());
-      return redirect()
-        ->route('accounts.index')
-        ->with('success', 'Account added successfully');
-    } catch (\Exception $e) {
-      return back()
-        ->withInput()
-        ->with('error', $e->getMessage());
-    }
+    $this->service->create($request->validated());
+    return redirect()
+      ->route('accounts.index')
+      ->with('success', 'Account added successfully');
   }
 
   public function show(Account $account)
