@@ -450,7 +450,7 @@
     <div class="col-xl-4 col-lg-5 col-md-5 order-1 order-md-0">
       <!-- Customer-detail Card -->
       <div class="card mb-6">
-        <a href="{{ route('account.refresh',request('account')) }}"
+        <a href="{{ route('account.refresh',$account->id) }}"
           type="button"
           class="btn btn-lg btn-icon btn-outline-secondary position-absolute top-0 end-0 m-3"
           title="Refresh"
@@ -786,7 +786,7 @@
           <!-- FORM -->
           <form id="orderForm"
                 method="POST"
-                action="{{ route('account.place.order', request('account')->id) }}"
+                action="{{ route('account.place.order', $account->id) }}"
                 class="row g-3">
 
             @csrf
