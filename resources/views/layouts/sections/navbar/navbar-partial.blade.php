@@ -437,7 +437,7 @@ use Illuminate\Support\Facades\Route;
       <ul class="dropdown-menu dropdown-menu-end">
         <li>
           <a class="dropdown-item mt-0"
-            href="{{ Route::has('profile.show') ? route('profile.show') : url('pages/profile-user') }}">
+            href="#">
             <div class="d-flex align-items-center">
               <div class="flex-shrink-0 me-2">
                 <div class="avatar avatar-online">
@@ -453,7 +453,7 @@ use Illuminate\Support\Facades\Route;
                   John Doe
                   @endif
                 </h6>
-                <small class="text-body-secondary">Admin</small>
+                <small class="text-body-secondary">User</small>
               </div>
             </div>
           </a>
@@ -463,7 +463,7 @@ use Illuminate\Support\Facades\Route;
         </li>
         <li>
           <a class="dropdown-item"
-            href="{{ Route::has('profile.show') ? route('profile.show') : url('pages/profile-user') }}">
+            href="#">
             <i class="icon-base ti tabler-user me-3 icon-md"></i><span class="align-middle">My Profile</span> </a>
         </li>
         @if (Auth::check() && Laravel\Jetstream\Jetstream::hasApiFeatures())
@@ -473,7 +473,7 @@ use Illuminate\Support\Facades\Route;
         </li>
         @endif
         <li>
-          <a class="dropdown-item" href="{{ url('pages/account-settings-billing') }}">
+          <a class="dropdown-item" href="#">
             <span class="d-flex align-items-center align-middle">
               <i class="flex-shrink-0 icon-base ti tabler-file-dollar me-3 icon-md"></i><span
                 class="flex-grow-1 align-middle">Billing</span>
