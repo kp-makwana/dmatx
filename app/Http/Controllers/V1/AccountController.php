@@ -92,14 +92,13 @@ class AccountController extends Controller
     return view('accounts.edit',compact('account','pageConfigs'));
   }
 
-  public function update(Account $account)
+  public function update(Request $request,Account $account)
   {
-
+    dd($request->all());
   }
 
   public function destroy(Account $account)
   {
-    dd('sdfsdf');
     $this->authorize('delete', $account);
     $this->service->destroy($account);
     return redirect()
