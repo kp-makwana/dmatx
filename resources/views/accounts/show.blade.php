@@ -12,18 +12,24 @@
 
 @section('vendor-script')
   @vite(['resources/assets/vendor/libs/moment/moment.js',
-  'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
-  'resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/cleave-zen/cleave-zen.js',
-  'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js',
+  'resources/assets/vendor/libs/sweetalert2/sweetalert2.js',
+  'resources/assets/vendor/libs/cleave-zen/cleave-zen.js',
+  'resources/assets/vendor/libs/select2/select2.js',
+  'resources/assets/vendor/libs/@form-validation/popular.js',
   'resources/assets/vendor/libs/@form-validation/bootstrap5.js',
   'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+@endsection
+
+@section('page-style')
+  @vite(['resources/assets/vendor/scss/pages/page-profile.scss'])
 @endsection
 
 @section('page-script')
   @vite([
     'resources/assets/js/modal-edit-user.js',
     'resources/assets/js/app-ecommerce-customer-detail.js',
-    'resources/assets/js/app-ecommerce-customer-detail-overview.js'
+    'resources/assets/js/app-ecommerce-customer-detail-overview.js',
+    'resources/assets/js/app-user-view-account.js'
   ])
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -445,90 +451,10 @@
 @endsection
 
 @section('content')
+  <x-account-header :account="$account" />
   <div class="row">
-    <!-- Customer-detail Sidebar -->
-    <div class="col-xl-4 col-lg-5 col-md-5 order-1 order-md-0">
-      <!-- Customer-detail Card -->
-      <div class="card mb-6">
-        <a href="{{ route('account.refresh',$account->id) }}"
-          type="button"
-          class="btn btn-lg btn-icon btn-outline-secondary position-absolute top-0 end-0 m-3"
-          title="Refresh"
-        >
-          <i class="ti tabler-refresh"></i>
-        </a>
-        <div class="card-body pt-12">
-          <div class="customer-avatar-section">
-            <div class="d-flex align-items-center flex-column">
-              <img class="img-fluid rounded mb-4" src="{{ asset('assets/img/avatars/1.png') }}" height="120" width="120"
-                   alt="User avatar" />
-              <div class="customer-info text-center mb-6">
-                <h5 class="mb-0">{{ $account->nickname }}</h5>
-                <span>#{{ $account->client_id }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="d-flex justify-content-around flex-wrap mb-6 gap-0 gap-md-3 gap-lg-4">
-            <div class="d-flex align-items-center gap-4 me-5">
-              <div class="avatar">
-                <div class="avatar-initial rounded bg-label-success">
-                  <i class="icon-base ti tabler-currency-rupee icon-lg"></i>
-                </div>
-              </div>
-              <div>
-                <h5 class="mb-0">{{ $account->net ?? '0' }}</h5>
-                <span>Net Amount</span>
-              </div>
-            </div>
-            <div class="d-flex align-items-center gap-4">
-              <div class="avatar">
-                <div class="avatar-initial rounded bg-label-danger">
-                  <i class="icon-base ti tabler-currency-rupee icon-lg"></i>
-                </div>
-              </div>
-              <div>
-                <h5 class="mb-0">{{ $account->amount_used ?? '0' }}</h5>
-                <span>Used Amount</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="info-container">
-            <hr>
-{{--            <h5 class="pb-4 border-bottom text-capitalize mt-6 mb-4">Details</h5>--}}
-            <ul class="list-unstyled mb-6">
-              <li class="mb-2">
-                <span class="h6 me-1">Name:</span>
-                <span>{{ $account->account_name }}</span>
-              </li>
-            </ul>
-            <div class="d-flex justify-content-center gap-2">
-              <a href="javascript:;" class="btn btn-primary w-50" data-bs-target="#editUser" data-bs-toggle="modal">Edit
-                Details</a>
-              <form action="{{ route('accounts.destroy', request('account')) }}"
-                    method="POST"
-                    class="w-50 delete-account-form">
-                @csrf
-                @method('DELETE')
-
-                <button type="button" id="btn-delete-account"
-                        class="btn btn-danger w-100 btn-delete-account"
-                        data-name="{{ $account->nickname ?: $account->client_id }}">
-                  Delete Customer
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- /Customer-detail Card -->
-      <!-- Plan Card -->
-
-      </div>
-    <!--/ Customer Sidebar -->
-
     <!-- Customer Content -->
-    <div class="col-xl-8 col-lg-7 col-md-7 order-0 order-md-1">
+    <div class="col-xl-12 col-lg-12 col-md-12 order-0 order-md-1">
       <!-- Customer Pills -->
       @include('components.account-breadcrumb')
       <!--/ Customer Pills -->
