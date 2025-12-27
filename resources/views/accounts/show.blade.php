@@ -252,7 +252,7 @@
         =============================== */
         if (activeToken && token === String(activeToken)) {
           const modalLtp = document.getElementById('om-ltp');
-          if (modalLtp) modalLtp.innerText = ltp.toFixed(2);
+          if (modalLtp) modalLtp.innerText = indianCurrency(ltp, 2);
         }
       };
     });
@@ -294,7 +294,7 @@
       /* LTP */
       const ltp = ltpCache[order.symboltoken];
       document.getElementById('om-ltp').innerText =
-        ltp ? ltp.toFixed(2) : '—';
+        ltp ? indianCurrency(ltp, 2) : '—';
 
       /* CIRCUIT */
       let limits = circuitCache[order.symboltoken];
