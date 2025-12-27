@@ -53,6 +53,16 @@
                 class="list-inline mb-0 d-flex align-items-center flex-wrap
                        justify-content-sm-start justify-content-center gap-4 my-2">
 
+                {{-- Client ID --}}
+                @if(!empty($account->client_id))
+                  <li class="list-inline-item d-flex gap-2 align-items-center">
+                    <i class="icon-base ti tabler-id icon-lg"></i>
+                    <span class="fw-medium">
+                      {{ $account->client_id }}
+                    </span>
+                  </li>
+                @endif
+
                 {{-- Email --}}
                 @if(!empty($account->email))
                   <li class="list-inline-item d-flex gap-2 align-items-center">
@@ -83,11 +93,11 @@
             </div>
 
             {{-- Status Button --}}
-            <a href="javascript:void(0)" class="btn btn-primary mb-1">
-              <i class="icon-base ti tabler-user-check icon-xs me-2"></i>
-              Connected
+            <a href="#"
+               class="btn btn-primary mb-1">
+              <i class="icon-base ti tabler-edit icon-xs me-2"></i>
+              Edit Account
             </a>
-
           </div>
         </div>
 
