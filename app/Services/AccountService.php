@@ -7,6 +7,7 @@ use App\Models\V1\Account;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AccountService
 {
@@ -309,5 +310,73 @@ class AccountService
     $account->totp_secret = $queryParams['secret'];
     $account->save();
     return $response;
+  }
+
+  public function createStepFive($account)
+  {
+    if ($account->status == Account::STATUS_TOTP_ENABLE) {
+      return ['success' => true,'account' => $account];
+    }
+    return ['success' => false,'error' => 'Account TOTP not enable'];
+  }
+
+  public function submitStepFive($account)
+  {
+    $smartApiLoginResponse = resolve(AngelSmartApiService::class)->smartApiLogin($account);
+    $finalResponse = ['success' => true,'account' => 'Something went wrong'];
+    if ($smartApiLoginResponse['status']){
+      $data = $smartApiLoginResponse['data'];
+      $account->smart_api_jwt_token = $data['jwtToken'];
+      $account->smart_api_refresh_token = $data['refreshToken'];
+
+      $smartApiLoginResponse = resolve(AngelSmartApiService::class)->getExistingApiKeys($data['jwtToken']);
+      if ($smartApiLoginResponse['status']){
+        $apiKeys = $smartApiLoginResponse['data'];
+        $dmatxApiKey = null;
+        $dmatxSecretKey = null;
+        foreach ($apiKeys as $apiKey){
+          if (Str::startsWith($apiKey['appname'], 'dmatx') && $apiKey['status'] == 0){
+            $dmatxApiKey = $apiKey['apikey'];
+            $dmatxSecretKey = $apiKey['secretkey'];
+          }
+        }
+        if (!empty($dmatxApiKey)){
+          $account->api_key = $dmatxApiKey;
+          $account->client_secret = $dmatxSecretKey;
+          $account->status = Account::STATUS_ACTIVE;
+          $account->save();
+          return ['success' => true,'account' => 'API key set successfully'];
+        } else {
+          $redirectUrl = route('angle-one.redirect.webhook',$account->id);
+          $postbackUrl = route('angle-one.postback.webhook',$account->id);
+          $payload = [
+            'appname' => 'dmatx',
+            'clientcode' => $account->client_id,
+            'appiconpath' => '',
+            'redirecturl' => $redirectUrl,
+            'postbackurl' => $postbackUrl,
+            'description' => 'des',
+            'apptype' => 'Trading',
+
+          ];
+          $createApiKeyResponse = resolve(AngelSmartApiService::class)->createApiKey($data['jwtToken'],$payload);
+          if ($createApiKeyResponse['status']){
+            $account->api_key = $createApiKeyResponse['data']['apikey'];
+            $account->client_secret = $createApiKeyResponse['data']['secretkey'];
+            $account->status = Account::STATUS_ACTIVE;
+            $account->save();
+            return ['success' => true,'account' => 'API key set successfully'];
+          } else {
+            $finalResponse['message'] = $createApiKeyResponse['message'];
+          }
+        }
+      } else {
+        $finalResponse['message'] = $smartApiLoginResponse['message'];
+      }
+      $account->save();
+    }else {
+      $finalResponse['message'] = $smartApiLoginResponse['message'];
+    }
+    return $finalResponse;
   }
 }

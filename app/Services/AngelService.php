@@ -63,7 +63,7 @@ class AngelService
         $account->refresh_token = $data['refreshToken'];
         $account->feed_token = $data['feedToken'];
         $account->is_active = 1;
-        $account->status = 'success';
+        $account->status = Account::STATUS_ACTIVE;
 
         $account->last_error = null;
         $account->last_login_at = Carbon::now();

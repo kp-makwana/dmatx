@@ -79,9 +79,9 @@ class AngelSmartApiService
   {
     $response = $this->client->post($this->baseUrl . '/rest/auth/angelbroking/client/v1/validateEmailOTP', [
       'headers' => $this->getHeaders(),
-      'json'    => [
+      'json' => [
         'email' => $email,
-        'otp'   => $otp,
+        'otp' => $otp,
       ],
     ]);
 
@@ -95,12 +95,12 @@ class AngelSmartApiService
   {
     $payload = [
       'mobileNumber' => $mobile,
-      'email'        => $email,
-      'otp'          => $otp,
+      'email' => $email,
+      'otp' => $otp,
     ];
     $response = $this->client->post($this->baseUrl . '/rest/auth/angelbroking/client/v1/validateSMSOTP', [
       'headers' => $this->getHeaders(),
-      'json'    => $payload,
+      'json' => $payload,
     ]);
 
     return json_decode($response->getBody(), true);
@@ -110,14 +110,14 @@ class AngelSmartApiService
   {
     $payload = [
       'clientcode' => $clientCode,
-      'password'   => $pin,
+      'password' => $pin,
     ];
 
     $response = $this->client->post(
       $this->baseUrl . '/rest/auth/angelbroking/user/v1/totp/login',
       [
         'headers' => $this->getHeaders(),
-        'json'    => $payload,
+        'json' => $payload,
       ]
     );
 
@@ -140,17 +140,64 @@ class AngelSmartApiService
   {
     $payload = [
       'clientcode' => $clientCode,
-      'otp'        => $otp,
+      'otp' => $otp,
     ];
 
     $response = $this->client->post(
       $this->baseUrl . '/rest/auth/angelbroking/user/v1/totp/otp/verify',
       [
         'headers' => $this->getHeaders(),
-        'json'    => $payload,
+        'json' => $payload,
       ]
     );
 
+    return json_decode($response->getBody(), true);
+  }
+
+  public function smartApiLogin($account)
+  {
+    $payload = [
+      'email' => $account->email,
+      'password' => $account->password,
+    ];
+
+    $response = $this->client->post(
+      $this->baseUrl . '/rest/auth/angelbroking/client/v1/login',
+      [
+        'headers' => $this->getHeaders(),
+        'json' => $payload,
+      ]
+    );
+
+    return json_decode($response->getBody(), true);
+  }
+
+  public function getExistingApiKeys($jwtToken)
+  {
+    $headers = $this->getHeaders();
+    $headers['Authorization'] = 'Bearer ' . $jwtToken;
+    $response = $this->client->get(
+      $this->baseUrl . '/rest/secure/angelbroking/client/v1/getapps',
+      [
+        'headers' => $headers,
+      ]
+    );
+
+    return json_decode($response->getBody(), true);
+  }
+
+  public function createApiKey($jwtToken, $payload)
+  {
+    $headers = $this->getHeaders();
+    $headers['Authorization'] = 'Bearer ' . $jwtToken;
+
+    $response = $this->client->post(
+      $this->baseUrl . '/rest/secure/angelbroking/client/v1/createapp',
+      [
+        'headers' => $headers,
+        'json' => $payload,
+      ]
+    );
     return json_decode($response->getBody(), true);
   }
 }

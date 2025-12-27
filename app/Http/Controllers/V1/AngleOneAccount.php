@@ -127,6 +127,7 @@ class AngleOneAccount extends Controller
 
   public function createStepFour(Account $account)
   {
+    $this->authorize('update', $account);
     $response = $this->service->createStepFour($account);
     if (!$response['success']) {
       Session::flash('error','Account not yet processed');
@@ -163,8 +164,26 @@ class AngleOneAccount extends Controller
     return $this->successResponse('OTP Resend');
   }
 
-  public function createStepFive()
+  public function createStepFive(Account  $account)
   {
-    dd('createStepFive');
+    $this->authorize('update', $account);
+    $response = $this->service->createStepFive($account);
+    if (!$response['success']) {
+      Session::flash('error',$response['message']);
+      return redirect()->back();
+    }
+    $pageConfigs = ['myLayout' => 'horizontal'];
+    return view('angle-one-account.create-step-five',compact('account','pageConfigs'));
+  }
+
+  public function submitStepFive(Account $account)
+  {
+    $this->authorize('update', $account);
+    $response = $this->service->submitStepFive($account);
+    if (!$response['success']) {
+      Session::flash('error',$response['message']);
+      return redirect()->back();
+    }
+    return redirect()->route('accounts.show',$account->id);
   }
 }

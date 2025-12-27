@@ -59,6 +59,9 @@ class AccountController extends Controller
     } else if ($status == Account::STATUS_TOTP_ENABLE){
       return redirect()->route('angle-one.create.step.five', $account->id);
     }
+    if ($status != Account::STATUS_ACTIVE){
+      return redirect()->route('accounts.index')->with('error','Account setup not properly. Delete account and try again');
+    }
     $result = $this->service->getHoldings($account);
     if (!isset($result['data'])){
       return redirect()->route('accounts.index')->with('error','Rate limit exceeded');
