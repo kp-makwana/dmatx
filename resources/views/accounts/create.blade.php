@@ -83,13 +83,13 @@
             </div>
 
 
-            {{-- PIN --}}
+            {{-- MPIN --}}
             <div class="col-md-6">
               <label class="form-label" for="pin">
-                PIN <span class="text-danger">*</span>
+                MPIN <span class="text-danger">*</span>
               </label>
 
-              <div class="input-group input-group-merge">
+              <div class="input-group input-group-merge form-password-toggle">
                 <input
                   type="password"
                   id="pin"
@@ -98,15 +98,13 @@
                   inputmode="numeric"
                   pattern="[0-9]*"
                   class="form-control @error('pin') is-invalid @enderror"
-                  placeholder="4-digit AngleOne PIN"
+                  placeholder="4-digit AngleOne MPIN"
                 />
-
-                <span class="input-group-text cursor-pointer">
-                  <i
-                    class="icon-base ti tabler-help-circle text-body-secondary"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="Enter your 4-digit PIN used for logging into the AngleOne broker account"
+                <span class="input-group-text cursor-pointer" id="toggleMpin">
+                  <i class="icon-base ti tabler-eye-off"
+                     data-bs-toggle="tooltip"
+                     data-bs-placement="top"
+                     title="Enter your 4-digit PIN used for logging into the AngleOne broker account"
                   ></i>
                 </span>
               </div>
