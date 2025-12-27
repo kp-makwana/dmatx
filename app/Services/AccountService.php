@@ -302,13 +302,12 @@ class AccountService
   {
     $response = resolve(AngelSmartApiService::class)->validateTOTP($account->client_id,$validated['email_mobile_otp']);
     if ($response['status']){
+      $parsedUrl = parse_url($response['data']['uri']);
+      parse_str($parsedUrl['query'], $queryParams);
+      $account->totp_secret = $queryParams['secret'];
       $account->status = Account::STATUS_TOTP_ENABLE;
       $account->save();
     }
-    $parsedUrl = parse_url($response['data']['uri']);
-    parse_str($parsedUrl['query'], $queryParams);
-    $account->totp_secret = $queryParams['secret'];
-    $account->save();
     return $response;
   }
 
