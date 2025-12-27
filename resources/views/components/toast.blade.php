@@ -47,7 +47,7 @@
           style="margin-top: -1% !important;"
          aria-live="assertive"
          aria-atomic="true"
-         data-bs-delay="250000">
+         data-bs-delay="3000">
 
       <div class="toast-header ${config.bg}">
         <i class="icon-base ti ${config.icon} me-2 text-white"></i>
