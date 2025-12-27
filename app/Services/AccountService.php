@@ -276,7 +276,12 @@ class AccountService
 
   public function generateTOTP($account,$validated)
   {
-    return resolve(AngelSmartApiService::class)->generateTOTP($account->client_id,$validated['pin']);
+    $response = resolve(AngelSmartApiService::class)->generateTOTP($account->client_id,$validated['pin']);
+    if ($response['status']){
+      $account->pin = $validated['pin'];
+      $account->save();
+    }
+    return $response;
   }
 
   public function createStepFour($account)
@@ -285,5 +290,20 @@ class AccountService
       return ['success' => true,'account' => $account];
     }
     return ['success' => false,'error' => 'Account not yet processed'];
+  }
+
+  public function totpOtpResend($account)
+  {
+    return resolve(AngelSmartApiService::class)->totpOtpResend($account->client_id);
+  }
+
+  public function submitStepFour($account,$validated)
+  {
+    $emailValidateResponse = resolve(AngelSmartApiService::class)->validateTOTP($account->client_id,$validated['email_mobile_otp']);
+    if ($emailValidateResponse['status']){
+      $account->status = Account::STATUS_TOTP_ENABLE;
+      $account->save();
+    }
+    return $emailValidateResponse;
   }
 }

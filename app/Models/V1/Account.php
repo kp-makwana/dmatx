@@ -16,4 +16,5 @@ class Account extends Model
 
   public const STATUS_SIGNUP_FORM_SUBMITTED = 'signup_form_submitted';
   public const STATUS_SIGNUP_SUCCESS = 'signup_success';
+  public const STATUS_TOTP_ENABLE = 'totp_enable';
 }

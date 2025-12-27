@@ -467,10 +467,13 @@ Route::middleware('auth')->group(function () {
     Route::get('account/step-three/{account}', [AngleOneAccount::class, 'createStepThree'])->name('create.step.three');
     Route::post('account/step-three/{account}', [AngleOneAccount::class, 'submitStepThree'])->name('submit.step.three');
 
-    // Step 3
+    // Step 4
     Route::get('account/step-four/{account}', [AngleOneAccount::class, 'createStepFour'])->name('create.step.four');
     Route::post('account/step-four/{account}', [AngleOneAccount::class, 'submitStepFour'])->name('submit.step.four');
+    Route::post('account/resend-totp-otp/{account}', [AngleOneAccount::class, 'resendTotpOtp'])->name('resend.totp.otp');
 
+    // Step 5
+    Route::get('account/step-five/{account}', [AngleOneAccount::class, 'createStepFive'])->name('create.step.five');
   });
 });
 

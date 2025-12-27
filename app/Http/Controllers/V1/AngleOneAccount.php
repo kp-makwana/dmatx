@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\Accounts\AngleOneAccountCreateRequest;
 use App\Http\Requests\V1\Accounts\OTPValidateRequest;
 use App\Http\Requests\V1\Accounts\PinValidationRequest;
+use App\Http\Requests\V1\Accounts\TOTPValidationRequest;
 use App\Models\V1\Account;
 use App\Services\AccountService;
 use Illuminate\Http\Request;
@@ -131,11 +132,39 @@ class AngleOneAccount extends Controller
       Session::flash('error','Account not yet processed');
       return redirect()->back();
     }
-    return view('angle-one-account.create-step-four',compact('account'));
+    $pageConfigs = ['myLayout' => 'horizontal'];
+    return view('angle-one-account.create-step-four',compact('account','pageConfigs'));
   }
 
-  public function submitStepFour(Account $account)
+  public function submitStepFour(TOTPValidationRequest $request,Account $account)
   {
+    $this->authorize('update', $account);
+    $validated = $request->validated();
+    $response = $this->service->submitStepFour($account,$validated);
+    if (!$response['status']){
+      $errors['email_mobile_otp'] = $response['message'] ?? 'Invalid OTP';
+    }
+    if (! empty($errors)) {
+      throw ValidationException::withMessages($errors);
+    }
+    return redirect()
+      ->route('angle-one.create.step.five', ['account' => $account->id])
+      ->with('success', 'OTP verified successfully');
+  }
 
+  public function resendTotpOtp(Account $account)
+  {
+    $this->authorize('update', $account);
+    $response = $this->service->totpOtpResend($account);
+    if (!$response['status']) {
+      Session::flash('error', $response['message']);
+      return $this->errorResponse($response['message']);
+    }
+    return $this->successResponse('OTP Resend');
+  }
+
+  public function createStepFive()
+  {
+    dd('createStepFive');
   }
 }

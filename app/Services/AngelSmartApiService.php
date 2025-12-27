@@ -123,4 +123,34 @@ class AngelSmartApiService
 
     return json_decode($response->getBody(), true);
   }
+
+  public function totpOtpResend(string $clientCode)
+  {
+    $response = $this->client->post($this->baseUrl . '/rest/auth/angelbroking/user/v1/totp/otp/generate', [
+      'headers' => $this->getHeaders(),
+      'json' => [
+        'clientcode' => $clientCode,
+      ],
+    ]);
+
+    return json_decode($response->getBody(), true);
+  }
+
+  public function validateTOTP(string $clientCode, string $otp): array
+  {
+    $payload = [
+      'clientcode' => $clientCode,
+      'otp'        => $otp,
+    ];
+
+    $response = $this->client->post(
+      $this->baseUrl . '/rest/auth/angelbroking/user/v1/totp/otp/verify',
+      [
+        'headers' => $this->getHeaders(),
+        'json'    => $payload,
+      ]
+    );
+
+    return json_decode($response->getBody(), true);
+  }
 }
