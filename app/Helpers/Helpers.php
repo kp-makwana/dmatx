@@ -308,4 +308,32 @@ class Helpers
 }
 CSS;
   }
+
+  public static function indianCurrency($number, $decimal = 0)
+  {
+    // Split number into integer & decimal parts
+    $integerPart = floor($number);
+    $decimalPart = '';
+
+    if ($decimal > 0) {
+      $decimalPart = '.' . str_pad(
+          substr(number_format($number, $decimal, '.', ''), -$decimal),
+          $decimal,
+          '0',
+          STR_PAD_RIGHT
+        );
+    }
+
+    // Indian number formatting
+    $integerPart = strrev($integerPart);
+    $result = substr($integerPart, 0, 3);
+    $integerPart = substr($integerPart, 3);
+
+    while (strlen($integerPart) > 0) {
+      $result .= ',' . substr($integerPart, 0, 2);
+      $integerPart = substr($integerPart, 2);
+    }
+
+    return strrev($result) . $decimalPart;
+  }
 }

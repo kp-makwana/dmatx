@@ -57,6 +57,32 @@
   </script>
 
   <script>
+    function indianCurrency(number, decimal = 0) {
+      if (number === null || number === undefined || isNaN(number)) {
+        return '0';
+      }
+
+      const factor = Math.pow(10, decimal);
+      const rounded = Math.round(number * factor) / factor;
+
+      let [integerPart, decimalPart] = rounded
+        .toFixed(decimal)
+        .split('.');
+
+      // Indian grouping
+      let lastThree = integerPart.slice(-3);
+      let otherNumbers = integerPart.slice(0, -3);
+
+      if (otherNumbers !== '') {
+        lastThree = ',' + lastThree;
+      }
+
+      otherNumbers = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+
+      return decimal > 0
+        ? otherNumbers + lastThree + '.' + decimalPart
+        : otherNumbers + lastThree;
+    }
     /* =====================================================
        CONFIG
     ===================================================== */
@@ -177,7 +203,7 @@
             /* LTP */
             const ltpEl = td.querySelector('.ltp-value');
             if (ltpEl) {
-              ltpEl.innerText = `₹${ltp.toFixed(2)}`;
+              ltpEl.innerText = `₹${indianCurrency(ltp, 2)}`;
 
               // reset old color
               ltpEl.classList.remove('text-success', 'text-danger');
@@ -209,7 +235,7 @@
               const pnlPct = ((ltp - avg) / avg) * 100;
 
               pnlTd.querySelector('.pnl-value').innerText =
-                `₹${pnl.toFixed(2)}`;
+                `₹${indianCurrency(pnl, 2)}`;
               pnlTd.querySelector('.pnl-percent').innerText =
                 `${pnlPct.toFixed(2)}%`;
 
@@ -471,7 +497,7 @@
                 </div>
                 <div>
                   <small class="text-muted d-block">Current Value</small>
-                  <span class="fw-semibold">&#8377;{{ $summary['totalholdingvalue'] ?? 0 }}</span>
+                  <span class="fw-semibold">&#8377;{{ \App\Helpers\Helpers::indianCurrency($summary['totalholdingvalue'] ?? 0) }}</span>
                 </div>
               </div>
             </div>
@@ -486,7 +512,7 @@
                 </div>
                 <div>
                   <small class="text-muted d-block">Investment</small>
-                  <span class="fw-semibold">&#8377;{{ $summary['totalinvvalue'] ?? 0 }}</span>
+                  <span class="fw-semibold">&#8377;{{ \App\Helpers\Helpers::indianCurrency($summary['totalinvvalue'] ?? 0) }}</span>
                 </div>
               </div>
             </div>
@@ -496,16 +522,16 @@
               <div class="d-flex align-items-center gap-2">
                 <div class="avatar avatar-sm">
                   <div class="avatar-initial rounded
-            {{ ($summary['totalprofitandloss'] ?? 0) >= 0 ? 'bg-label-success' : 'bg-label-danger' }}">
+                    {{ ($summary['totalprofitandloss'] ?? 0) >= 0 ? 'bg-label-success' : 'bg-label-danger' }}">
                     <i class="icon-base ti tabler-trending-up"></i>
                   </div>
                 </div>
                 <div>
                   <small class="text-muted d-block">P&amp;L</small>
                   <span class="fw-semibold
-            {{ ($summary['totalprofitandloss'] ?? 0) >= 0 ? 'text-success' : 'text-danger' }}">
-            &#8377;{{ $summary['totalprofitandloss'] ?? 0 }}
-          </span>
+                    {{ ($summary['totalprofitandloss'] ?? 0) >= 0 ? 'text-success' : 'text-danger' }}">
+                    &#8377;{{ \App\Helpers\Helpers::indianCurrency($summary['totalprofitandloss'] ?? 0) }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -515,16 +541,16 @@
               <div class="d-flex align-items-center gap-2">
                 <div class="avatar avatar-sm">
                   <div class="avatar-initial rounded
-            {{ ($summary['totalpnlpercentage'] ?? 0) >= 0 ? 'bg-label-success' : 'bg-label-danger' }}">
+                    {{ ($summary['totalpnlpercentage'] ?? 0) >= 0 ? 'bg-label-success' : 'bg-label-danger' }}">
                     <i class="icon-base ti tabler-percentage"></i>
                   </div>
                 </div>
                 <div>
                   <small class="text-muted d-block">P&amp;L %</small>
                   <span class="fw-semibold
-            {{ ($summary['totalpnlpercentage'] ?? 0) >= 0 ? 'text-success' : 'text-danger' }}">
-            {{ $summary['totalpnlpercentage'] ?? 0 }}%
-          </span>
+                    {{ ($summary['totalpnlpercentage'] ?? 0) >= 0 ? 'text-success' : 'text-danger' }}">
+                    {{ $summary['totalpnlpercentage'] ?? 0 }}%
+                  </span>
                 </div>
               </div>
             </div>
@@ -573,7 +599,7 @@
 
                 <!-- Avg Price -->
                 <td>
-                  ₹{{ number_format($row['averageprice'], 2) }}
+                  ₹{{ \App\Helpers\Helpers::indianCurrency($row['averageprice'],2) }}
                 </td>
 
                 <!-- LTP -->
@@ -584,7 +610,7 @@
                     data-prevclose="{{ $row['close'] }}">
 
                     <span class="ltp-value fw-semibold">
-                      ₹{{ number_format($row['ltp'], 2) }}
+                      ₹{{ \App\Helpers\Helpers::indianCurrency($row['ltp'], 2) }}
                     </span>
                   <div class="ltp-today-percent small
                   {{ ($row['close'] > 0 && $row['ltp'] >= $row['close']) ? 'text-success' : 'text-danger' }}">
