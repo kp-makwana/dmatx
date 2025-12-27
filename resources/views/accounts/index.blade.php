@@ -133,7 +133,6 @@
           </th>
 
           <th class="sortable text-primary"><span>Status</span></th>
-          <th class="sortable text-primary"><span>Token Expiry</span></th>
           <th class="sortable text-primary">
             <a href="{{ sortUrl('last_login_at') }}">
               Last Login
@@ -177,11 +176,10 @@
             </td>
             <td>{{ $account['client_id'] }}</td>
             <td>
-              <span class="badge bg-label-primary">
+              <span class="badge bg-label-{{ ($account['status']== \App\Models\V1\Account::STATUS_ACTIVE)?'primary':'danger' }}">
                 {{ ucfirst($account['status']) }}
-            </span>
+              </span>
             </td>
-            <td>{!! $account['token_expiry'] !!}</td>
             <td>{{ $account['last_login_at'] ?? '-' }}</td>
             <td class="justify-content-end">
               <div class="dropdown">
