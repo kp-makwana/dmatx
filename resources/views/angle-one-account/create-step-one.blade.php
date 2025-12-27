@@ -206,11 +206,25 @@
               </div>
             </div>
 
-            {{-- Submit --}}
-            <div class="col-12 text-end">
-              <button type="submit" class="btn btn-primary">
-                Create AngleOne SmartAPI Account
-              </button>
+            {{-- Actions --}}
+            <div class="col-12">
+              <div class="d-flex justify-content-end gap-2 w-100">
+                <a href="{{ route('accounts.index') }}" class="btn btn-outline-secondary">
+                  <i class="ti tabler-arrow-left me-1"></i> Back
+                </a>
+                <button
+                  type="submit"
+                  class="btn btn-primary d-inline-flex align-items-center justify-content-center"
+                  id="createAccountSubmitBtn">
+                  <span class="btn-text">Create AngleOne SmartAPI Account</span>
+                  <span class="spinner-border spinner-border-sm d-none ms-2"
+                        role="status"
+                        aria-hidden="true"></span>
+                  <span class="btn-loading-text d-none ms-2">
+                    Creating...
+                  </span>
+                </button>
+              </div>
             </div>
 
           </form>
@@ -218,4 +232,20 @@
       </div>
     </div>
   </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.querySelector('form[action="{{ route('angle-one.submit.step.one') }}"]');
+      if (!form) return;
+      form.addEventListener('submit', () => {
+        const btn = document.getElementById('createAccountSubmitBtn');
+        if (!btn) return;
+
+        btn.disabled = true;
+
+        btn.querySelector('.btn-text').classList.add('d-none');
+        btn.querySelector('.spinner-border').classList.remove('d-none');
+        btn.querySelector('.btn-loading-text').classList.remove('d-none');
+      });
+    });
+  </script>
 @endsection
