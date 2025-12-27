@@ -187,8 +187,8 @@
                   <i class="ti tabler-dots-vertical"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item" href="{{ route('accounts.show',$account['id']) }}">Details</a></li>
-                  <li><a class="dropdown-item" href="#">Edit</a></li>
+                  <li><a class="dropdown-item" href="{{ route('accounts.show',$account['id']) }}">View</a></li>
+                  <li><a class="dropdown-item" href="{{ route('accounts.update',$account['id']) }}">Setting</a></li>
                   <li>
                     <form action="{{ route('accounts.destroy', $account['id']) }}"
                           method="POST"
