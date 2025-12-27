@@ -322,7 +322,7 @@ class AccountService
   public function submitStepFive($account)
   {
     $smartApiLoginResponse = resolve(AngelSmartApiService::class)->smartApiLogin($account);
-    $finalResponse = ['success' => true,'account' => 'Something went wrong'];
+    $finalResponse = ['success' => true,'message' => 'Something went wrong'];
     if ($smartApiLoginResponse['status']){
       $data = $smartApiLoginResponse['data'];
       $account->smart_api_jwt_token = $data['jwtToken'];
@@ -344,7 +344,7 @@ class AccountService
           $account->client_secret = $dmatxSecretKey;
           $account->status = Account::STATUS_ACTIVE;
           $account->save();
-          return ['success' => true,'account' => 'API key set successfully'];
+          return ['success' => true,'message' => 'API key set successfully'];
         } else {
           $redirectUrl = route('angle-one.redirect.webhook',$account->id);
           $postbackUrl = route('angle-one.postback.webhook',$account->id);
@@ -364,7 +364,7 @@ class AccountService
             $account->client_secret = $createApiKeyResponse['data']['secretkey'];
             $account->status = Account::STATUS_ACTIVE;
             $account->save();
-            return ['success' => true,'account' => 'API key set successfully'];
+            return ['success' => true,'message' => 'API key set successfully'];
           } else {
             $finalResponse['message'] = $createApiKeyResponse['message'];
           }
@@ -377,5 +377,33 @@ class AccountService
       $finalResponse['message'] = $smartApiLoginResponse['message'];
     }
     return $finalResponse;
+  }
+
+  public function accountUpdate($validatedData,$account)
+  {
+    $account->nickname = $validatedData['nickname'];
+    $refreshAccount = false;
+    if (!empty($validatedData['pin']) && $account->pin != $validatedData['pin']){
+      $account->pin = $validatedData['pin'];
+      $refreshAccount = true;
+    }
+    if (!empty($validatedData['api_key']) && $account->api_key != $validatedData['api_key']){
+      $account->api_key = $validatedData['api_key'];
+      $refreshAccount = true;
+    }
+    if ($refreshAccount){
+      $response = resolve(AngelService::class)->refreshAccount($validatedData,$account);
+      if ($response['status']){
+        $data = $response['data'];
+        $account->session_token = $data['jwtToken'];
+        $account->refresh_token = $data['refreshToken'];
+        $account->feed_token = $data['feedToken'];
+        $account->save();
+      } else {
+        return ['success' => false,'message' => $response['message']];
+      }
+    }
+    $account->save();
+    return ['success' => true,'message' =>'Account updated successfully'];
   }
 }

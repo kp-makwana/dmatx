@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\Accounts\StoreRequest;
+use App\Http\Requests\V1\Accounts\UpdateRequest;
 use App\Models\V1\Account;
 use App\Services\AccountService;
 use Illuminate\Http\Request;
@@ -92,9 +93,19 @@ class AccountController extends Controller
     return view('accounts.edit',compact('account','pageConfigs'));
   }
 
-  public function update(Request $request,Account $account)
+  public function update(UpdateRequest $request,Account $account)
   {
-    dd($request->all());
+    $this->authorize('update', $account);
+
+    $response = $this->service->accountUpdate(
+      $request->validated(),
+      $account
+    );
+
+    return back()->with(
+      $response['success'] ? 'success' : 'error',
+      $response['message']
+    );
   }
 
   public function destroy(Account $account)

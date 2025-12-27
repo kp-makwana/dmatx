@@ -110,6 +110,49 @@ class AngelService
     }
   }
 
+  public function refreshAccount($validatedData,$account)
+  {
+    $clientCode = $account->client_id;
+    if (!empty($validatedData['api_key'])){
+      $apiKey = $validatedData['api_key'];
+    } else {
+      $apiKey = $account->api_key;
+    }
+    if (!empty($validatedData['pin'])){
+      $password = $validatedData['pin'];
+    } else {
+      $password = $account->api_key;
+    }
+    $totp = self::generateTOTP($account->totp_secret);
+
+    $endpoint = $this->baseUrl . "/rest/auth/angelbroking/user/v1/loginByPassword";
+
+    $headers = [
+      'Content-Type' => 'application/json',
+      'Accept' => 'application/json',
+      'X-UserType' => 'USER',
+      'X-SourceID' => 'WEB',
+      'X-ClientLocalIP' => request()->ip(),
+      'X-ClientPublicIP' => request()->ip(),
+      'X-MACAddress' => '00:00:00:00:00:00',
+      'X-PrivateKey' => $apiKey,
+    ];
+
+    $payload = [
+      "clientcode" => $clientCode,
+      "password" => $password,
+      "totp" => $totp,
+      "state" => "live"
+    ];
+
+
+    $response = $this->client->post($endpoint, [
+      'headers' => $headers,
+      'json' => $payload
+    ]);
+    return json_decode($response->getBody(), true);
+  }
+
   public static function generateTOTP(string $totpSecret): string
   {
     $totp = TOTP::create($totpSecret, 30, 'sha1', 6);
