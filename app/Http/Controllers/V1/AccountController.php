@@ -62,6 +62,14 @@ class AccountController extends Controller
     if ($status != Account::STATUS_ACTIVE){
       return redirect()->route('accounts.index')->with('error','Account setup not properly. Delete account and try again');
     }
+    $previousUrl = url()->previous();
+    $previousRouteName = app('router')
+      ->getRoutes()
+      ->match(app('request')->create($previousUrl))
+      ->getName();
+    if ($previousRouteName == 'angle-one.submit.step.five'){
+      $this->service->refresh($account);
+    }
     $result = $this->service->getHoldings($account);
     if (!isset($result['data'])){
       return redirect()->route('accounts.index')->with('error','Rate limit exceeded');
