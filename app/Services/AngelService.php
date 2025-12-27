@@ -292,7 +292,7 @@ class AngelService
       $refreshTokenResponse = $this->login($account);
       if ($refreshTokenResponse['success']) {
         $message = $refreshTokenResponse['message'];
-        return ['success' => true, 'message' => $message, 'data' => $refreshTokenResponse['data']];
+        return ['success' => true, 'message' => $message, 'data' => $refreshTokenResponse];
       }
     }
     return ['success' => false, 'message' => $message, $result['data']];

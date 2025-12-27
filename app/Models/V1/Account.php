@@ -14,6 +14,9 @@ class Account extends Model
     'amount_used' => 'decimal:2',
   ];
 
+  public const TYPE_MANUAL = 'manual';
+  public const TYPE_AUTO = 'auto';
+
   public const STATUS_SIGNUP_FORM_SUBMITTED = 'signup_form_submitted';
   public const STATUS_SIGNUP_SUCCESS = 'signup_success';
   public const STATUS_TOTP_ENABLE = 'totp_enable';

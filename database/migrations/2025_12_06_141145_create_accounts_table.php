@@ -38,8 +38,9 @@ return new class extends Migration
         $table->timestamp('token_expiry')->nullable();
 
         // Status & Tracking
-        $table->boolean('is_active')->default(true); // enable/disable
-        $table->string('status')->default('idle');   // idle, logged_in, error, etc
+        $table->enum('type',['manual','auto'])->default('manual');
+        $table->boolean('is_active')->default(true);
+        $table->string('status')->default('idle');
         $table->text('last_error_code')->nullable();
         $table->text('last_error')->nullable();
         $table->timestamp('last_login_at')->nullable();

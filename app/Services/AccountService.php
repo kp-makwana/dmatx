@@ -214,6 +214,8 @@ class AccountService
       DB::beginTransaction();
       $account = new Account();
       $validatedData['user_id'] = $user->id;
+      $validatedData['nickname'] = $validatedData['account_name'];
+      $validatedData['type'] = Account::TYPE_AUTO;
       $account->fill($validatedData);
       $account->save();
 
