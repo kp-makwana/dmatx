@@ -81,28 +81,25 @@
                       </div>
                     </div>
 
-                    {{-- PIN --}}
+                    {{-- MPIN --}}
                     <div class="col-12">
                       <label class="form-label" for="pin">
-                        PIN <span class="text-danger">*</span>
+                        MPIN <span class="text-danger">*</span>
                       </label>
 
-                      <div class="input-group input-group-merge">
+                      <div class="input-group input-group-merge form-password-toggle">
                         <input
                           type="password"
                           id="pin"
                           name="pin"
                           maxlength="4"
                           class="form-control @error('pin') is-invalid @enderror"
-                          placeholder="Enter 4-digit PIN"
+                          placeholder="Enter 4-digit MPIN"
+                          inputmode="numeric"
                         />
-                        <span class="input-group-text cursor-pointer">
-                        <i
-                          class="icon-base ti tabler-help-circle text-body-secondary"
-                          data-bs-toggle="tooltip"
-                          title="Enter your AngelOne account PIN"
-                        ></i>
-                      </span>
+                        <span class="input-group-text cursor-pointer" id="toggleMpin">
+                          <i class="icon-base ti tabler-eye-off"></i>
+                        </span>
                       </div>
 
                       @error('pin')

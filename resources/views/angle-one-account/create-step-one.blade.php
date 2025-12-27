@@ -47,7 +47,7 @@
                   class="form-control @error('account_name') is-invalid @enderror"
                   value="{{ old('account_name') }}"
                   placeholder="e.g. John Deo"
-{{--                  autocomplete="off"--}}
+                  autocomplete="off"
                 />
                 <span class="input-group-text cursor-pointer">
                   <i
@@ -77,7 +77,7 @@
                   class="form-control @error('email') is-invalid @enderror"
                   value="{{ old('email') }}"
                   placeholder="e.g. abc@test.com"
-{{--                  autocomplete="off"--}}
+                  autocomplete="off"
                 />
                 <span class="input-group-text cursor-pointer">
                   <i
@@ -108,7 +108,7 @@
                   class="form-control @error('mobile') is-invalid @enderror"
                   value="{{ old('mobile') }}"
                   placeholder="e.g. 9876543210"
-{{--                  autocomplete="off"--}}
+                  autocomplete="off"
                 />
                 <span class="input-group-text cursor-pointer">
                   <i
@@ -138,7 +138,7 @@
                   class="form-control @error('client_id') is-invalid @enderror"
                   value="{{ old('client_id') }}"
                   placeholder="e.g. AABBCC11"
-{{--                  autocomplete="off"--}}
+                  autocomplete="off"
                 />
                 <span class="input-group-text cursor-pointer">
                   <i
@@ -160,7 +160,7 @@
                 Password <span class="text-danger">*</span>
               </label>
 
-              <div class="input-group input-group-merge">
+              <div class="input-group input-group-merge form-password-toggle">
                 <input
                   type="password"
                   id="password"
@@ -168,11 +168,10 @@
                   class="form-control @error('password') is-invalid @enderror"
                   placeholder="Enter strong password"
                 />
-                <span class="input-group-text cursor-pointer">
-                  <i
-                    class="icon-base ti tabler-help-circle text-body-secondary"
-                    data-bs-toggle="tooltip"
-                    title="Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
+                <span class="input-group-text cursor-pointer" id="toggleMpin">
+                  <i class="icon-base ti tabler-eye-off"
+                     data-bs-toggle="tooltip"
+                     title="Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
                   ></i>
                 </span>
               </div>
@@ -188,7 +187,7 @@
                 Confirm Password <span class="text-danger">*</span>
               </label>
 
-              <div class="input-group input-group-merge">
+              <div class="input-group input-group-merge form-password-toggle">
                 <input
                   type="password"
                   id="password_confirmation"
@@ -196,13 +195,9 @@
                   class="form-control"
                   placeholder="Re-enter password"
                 />
-                <span class="input-group-text cursor-pointer">
-        <i
-          class="icon-base ti tabler-help-circle text-body-secondary"
-          data-bs-toggle="tooltip"
-          title="Re-enter the same password to confirm"
-        ></i>
-      </span>
+                <span class="input-group-text cursor-pointer" id="toggleMpin">
+                  <i class="icon-base ti tabler-eye-off"></i>
+                </span>
               </div>
             </div>
 
