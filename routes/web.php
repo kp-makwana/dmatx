@@ -446,6 +446,7 @@ Route::post('/contact-us', [HomeController::class, 'contactUs'])->name('contact-
 Route::middleware('auth')->group(function () {
   Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
   Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+  Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
 
   Route::resource('accounts', AccountController::class);
   Route::prefix('account')->name('account.')->group(function () {
@@ -457,6 +458,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('{account}/positions', [AccountController::class, 'positions'])->name('positions');
     Route::get('{account}/balance', [AccountController::class, 'balance'])->name('balance');
+    Route::get('{account}/market', [AccountController::class, 'market'])->name('market');
   });
   Route::prefix('angle-one')->name('angle-one.')->group(function () {
     // Step 1
@@ -484,7 +486,7 @@ Route::middleware('auth')->group(function () {
   });
 
   Route::get('/dhan', [HomeController::class, 'comingSoon'])->name('dhan');
-  Route::get('/zerodha', [HomeController::class, 'comingSoon'])->name('zirodha');
+  Route::get('/zerodha', [HomeController::class, 'comingSoon'])->name('zerodha');
   Route::get('/groww', [HomeController::class, 'comingSoon'])->name('groww');
   Route::get('/up-stox', [HomeController::class, 'comingSoon'])->name('up-stox');
   Route::get('/5paisa', [HomeController::class, 'comingSoon'])->name('5paisa');

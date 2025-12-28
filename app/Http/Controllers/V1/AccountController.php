@@ -180,13 +180,20 @@ class AccountController extends Controller
   {
     $this->authorize('view',$account);
     $pageConfigs = ['myLayout' => 'horizontal'];
-    return view('pages.coming-soon',compact('account','pageConfigs'));
+    return view('accounts.positions',compact('account','pageConfigs'));
   }
 
   public function balance(Account $account)
   {
     $this->authorize('view',$account);
     $pageConfigs = ['myLayout' => 'horizontal'];
-    return view('pages.coming-soon',compact('account','pageConfigs'));
+    return view('accounts.positions',compact('account','pageConfigs'));
+  }
+
+  public function market(Account $account)
+  {
+    $this->authorize('view',$account);
+    $pageConfigs = ['myLayout' => 'horizontal'];
+    return view('accounts.market',compact('account','pageConfigs'));
   }
 }

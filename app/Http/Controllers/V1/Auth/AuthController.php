@@ -70,4 +70,10 @@ class AuthController extends Controller
       ->route('login')
       ->with('success', __('auth.logout_success'));
   }
+
+  public function profile()
+  {
+    $pageConfigs = ['myLayout' => 'horizontal'];
+    return view('auth.profile',compact('pageConfigs'));
+  }
 }

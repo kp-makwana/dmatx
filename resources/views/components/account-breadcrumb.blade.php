@@ -21,6 +21,11 @@
       </a>
     </li>
     <li class="nav-item">
+      <a class="nav-link {{ \Illuminate\Support\Facades\Route::is('account.market')?'active':'' }}" href="{{ route('account.market',request('account')) }}">
+        <i class="icon-base ti tabler-building-store icon-sm me-1_5"></i> Market
+      </a>
+    </li>
+    <li class="nav-item">
       <a
         class="nav-link {{ \Illuminate\Support\Facades\Route::is('accounts.edit') ? 'active' : '' }}"
         href="{{ route('accounts.edit', request('account')) }}"

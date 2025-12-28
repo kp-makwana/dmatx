@@ -9,8 +9,28 @@
     {
       "name": "Angel One",
       "icon": "menu-icon icon-base ti tabler-chart-line",
-      "slug": "accounts",
-      "url": "accounts"
+      "slug": ["accounts", "angle-one"],
+      "url": "accounts",
+      "submenu": [
+        {
+          "name": "Accounts",
+          "icon": "menu-icon icon-base ti tabler-list-details",
+          "slug": "accounts",
+          "url": "accounts"
+        },
+        {
+          "name": "Add With OTP",
+          "icon": "menu-icon icon-base ti tabler-device-mobile-message",
+          "slug": "angle-one",
+          "url": "angle-one/account/step-one"
+        },
+        {
+          "name": "Add With API Key",
+          "icon": "menu-icon icon-base ti tabler-key",
+          "slug": "accounts.create",
+          "url": "accounts/create"
+        }
+      ]
     },
     {
       "name": "Dhan",
@@ -41,6 +61,12 @@
       "icon": "menu-icon icon-base ti tabler-coins",
       "slug": "5paisa",
       "url": "5paisa"
+    },
+    {
+      "name": "My Profile",
+      "icon": "menu-icon icon-base ti tabler-user-circle",
+      "slug": "profile",
+      "url": "profile"
     }
   ]
 }

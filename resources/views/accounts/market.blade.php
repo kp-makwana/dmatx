@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'eCommerce Customer Details Overview - Apps')
+@section('title', 'Market')
 
 @section('vendor-style')
   @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
@@ -21,8 +21,16 @@
 @endsection
 
 @section('content')
+
+  {{-- Account Header --}}
+  <x-account-header :account="$account" />
+
   <div class="row">
     <div class="col-12">
+
+      {{-- Account Breadcrumb --}}
+      @include('components.account-breadcrumb')
+
       {{-- Launching Soon Card --}}
       @include('components.soon-card')
 

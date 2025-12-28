@@ -150,9 +150,9 @@ use Illuminate\Support\Facades\Route;
               </div>
 
               <div class="dropdown-shortcuts-item col">
-          <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-            <i class="icon-base ti tabler-chart-line icon-26px text-heading"></i>
-          </span>
+                  <span class="dropdown-shortcuts-icon rounded-circle mb-3">
+                    <i class="icon-base ti tabler-chart-line icon-26px text-heading"></i>
+                  </span>
                 <a href="{{ route('accounts.index') }}" class="stretched-link">Accounts</a>
                 <small>All accounts</small>
               </div>
@@ -195,7 +195,7 @@ use Illuminate\Support\Facades\Route;
           <span class="dropdown-shortcuts-icon rounded-circle mb-3">
             <i class="icon-base ti tabler-trending-up icon-26px text-heading"></i>
           </span>
-                <a href="{{ route('zirodha') }}" class="stretched-link">Zerodha</a>
+                <a href="{{ route('zerodha') }}" class="stretched-link">Zerodha</a>
                 <small>Coming soon</small>
               </div>
             </div>
