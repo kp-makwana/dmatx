@@ -458,6 +458,9 @@ Route::middleware('auth')->group(function () {
     Route::post('{account}/cancel-order/{order}', [AccountController::class, 'cancelOrder'])->name('cancel.order');
     Route::post('{account}/modify-order', [AccountController::class, 'modifyOrder'])->name('modify.order');
     Route::post('{account}/place-order', [AccountController::class, 'placeOrder'])->name('place.order');
+
+    Route::get('{account}/positions', [AccountController::class, 'positions'])->name('positions');
+    Route::get('{account}/balance', [AccountController::class, 'balance'])->name('balance');
   });
 
   Route::prefix('angle-one')->name('angle-one.')->group(function () {

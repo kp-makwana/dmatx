@@ -11,6 +11,16 @@
       </a>
     </li>
     <li class="nav-item">
+      <a class="nav-link {{ \Illuminate\Support\Facades\Route::is('account.positions')?'active':'' }}" href="{{ route('account.positions',request('account')) }}">
+        <i class="icon-base ti tabler-chart-line icon-sm me-1_5"></i> Positions
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {{ \Illuminate\Support\Facades\Route::is('account.balance')?'active':'' }}" href="{{ route('account.balance',request('account')) }}">
+        <i class="icon-base ti tabler-cash icon-sm me-1_5"></i> Balance
+      </a>
+    </li>
+    <li class="nav-item">
       <a
         class="nav-link {{ \Illuminate\Support\Facades\Route::is('accounts.edit') ? 'active' : '' }}"
         href="{{ route('accounts.edit', request('account')) }}"

@@ -175,4 +175,18 @@ class AccountController extends Controller
     }
     return redirect()->back()->with($flashType,$message);
   }
+
+  public function positions(Account $account)
+  {
+    $this->authorize('view',$account);
+    $pageConfigs = ['myLayout' => 'horizontal'];
+    return view('pages.coming-soon',compact('account','pageConfigs'));
+  }
+
+  public function balance(Account $account)
+  {
+    $this->authorize('view',$account);
+    $pageConfigs = ['myLayout' => 'horizontal'];
+    return view('pages.coming-soon',compact('account','pageConfigs'));
+  }
 }
