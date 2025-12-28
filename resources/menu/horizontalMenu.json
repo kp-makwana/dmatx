@@ -9,7 +9,7 @@
     {
       "name": "Angel One",
       "icon": "menu-icon icon-base ti tabler-chart-line",
-      "slug": ["accounts", "angle-one"],
+      "slug": ["accounts","account", "angle-one"],
       "url": "accounts",
       "submenu": [
         {
@@ -65,7 +65,7 @@
     {
       "name": "My Profile",
       "icon": "menu-icon icon-base ti tabler-user-circle",
-      "slug": "profile",
+      "slug": ["profile", "security"],
       "url": "profile"
     }
   ]

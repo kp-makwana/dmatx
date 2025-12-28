@@ -11,27 +11,28 @@
             @foreach ($menuData[1]->menu as $menu)
                 {{-- active menu method --}}
                 @php
-                    $activeClass = null;
-                    $currentRouteName = Route::currentRouteName();
+                  $activeClass = null;
+                  $currentRouteName = Route::currentRouteName();
 
-                    if ($currentRouteName === $menu->slug) {
-                        $activeClass = 'active';
-                    } elseif (isset($menu->submenu)) {
-                        if (gettype($menu->slug) === 'array') {
-                            foreach ($menu->slug as $slug) {
-                                if (str_contains($currentRouteName, $slug) and strpos($currentRouteName, $slug) === 0) {
-                                    $activeClass = 'active';
-                                }
-                            }
-                        } else {
-                            if (
-                                str_contains($currentRouteName, $menu->slug) and
-                                strpos($currentRouteName, $menu->slug) === 0
-                            ) {
-                                $activeClass = 'active';
-                            }
-                        }
-                    }
+                  // Check if slug is an array
+                  if (is_array($menu->slug)) {
+                      if (in_array($currentRouteName, $menu->slug)) {
+                          $activeClass = 'active';
+                      } else {
+                          // Fallback for partial matches (e.g., accounts.create)
+                          foreach ($menu->slug as $slug) {
+                              if (str_contains($currentRouteName, $slug) && strpos($currentRouteName, $slug) === 0) {
+                                  $activeClass = 'active';
+                                  break;
+                              }
+                          }
+                      }
+                  } else {
+                      // Handle string slug
+                      if ($currentRouteName === $menu->slug || (str_contains($currentRouteName, $menu->slug) && strpos($currentRouteName, $menu->slug) === 0)) {
+                          $activeClass = 'active';
+                      }
+                  }
                 @endphp
 
                 {{-- main menu --}}
