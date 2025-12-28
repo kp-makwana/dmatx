@@ -1115,7 +1115,9 @@
                   advisor onboarding, or general platform queries.
                 </p>
 
-                <form>
+                <form method="POST" action="{{ route('contact-us') }}">
+                  @csrf
+
                   <div class="row g-4">
 
                     <div class="col-md-6">
@@ -1124,10 +1126,15 @@
                       </label>
                       <input
                         type="text"
-                        class="form-control"
+                        name="full_name"
+                        class="form-control @error('full_name') is-invalid @enderror"
                         id="contact-form-fullname"
                         placeholder="Enter your name"
+                        value="{{ old('full_name') }}"
                       />
+                      @error('full_name')
+                      <div class="invalid-feedback">{{ $message }}</div>
+                      @enderror
                     </div>
 
                     <div class="col-md-6">
@@ -1136,10 +1143,15 @@
                       </label>
                       <input
                         type="email"
+                        name="email"
                         id="contact-form-email"
-                        class="form-control"
+                        class="form-control @error('email') is-invalid @enderror"
                         placeholder="you@example.com"
+                        value="{{ old('email') }}"
                       />
+                      @error('email')
+                      <div class="invalid-feedback">{{ $message }}</div>
+                      @enderror
                     </div>
 
                     <div class="col-12">
@@ -1147,11 +1159,15 @@
                         Message
                       </label>
                       <textarea
+                        name="message"
                         id="contact-form-message"
-                        class="form-control"
+                        class="form-control @error('message') is-invalid @enderror"
                         rows="7"
                         placeholder="Tell us how we can help you"
-                      ></textarea>
+                      >{{ old('message') }}</textarea>
+                      @error('message')
+                      <div class="invalid-feedback">{{ $message }}</div>
+                      @enderror
                     </div>
 
                     <div class="col-12">

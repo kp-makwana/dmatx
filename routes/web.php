@@ -438,6 +438,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::post('/contact-us', [HomeController::class, 'contactUs'])->name('contact-us');
 
 // -----------------------------
 // AUTHENTICATED ROUTES

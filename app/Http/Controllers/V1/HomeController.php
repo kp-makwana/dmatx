@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\V1\ContactMessageRequest;
+use App\Models\ContactMessage;
 
 class HomeController extends Controller
 {
@@ -18,5 +19,17 @@ class HomeController extends Controller
   {
     $pageConfigs = ['myLayout' => 'front'];
     return view('frontend.index', ['pageConfigs' => $pageConfigs]);
+  }
+
+  public function contactUs(ContactMessageRequest $request)
+  {
+    $validated = $request->validated();
+
+    ContactMessage::create([
+      ...$validated,
+      'ip_address' => $request->ip(),
+    ]);
+
+    return back()->with('success', 'Message sent successfully.');
   }
 }
