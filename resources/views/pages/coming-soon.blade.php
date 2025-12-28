@@ -35,7 +35,7 @@
       <div class="container-xxl container-p-y py-4">
         <div class="row justify-content-center align-items-center min-vh-75">
 
-          <div class="col-xl-12 col-lg-7 col-md-9 col-sm-11">
+          <div class="col-xl-12">
 
             <div class="card shadow-sm text-center">
               <div class="card-body py-8 px-6">
@@ -44,9 +44,14 @@
                   We are launching soon 🚀
                 </h4>
 
-                <p class="mb-6 text-muted">
-                  Our website is opening soon. Please register to get notified when it's ready!
+                <p class="mb-4 text-muted">
+                  Our website is opening soon.In case of any query, please contact us.
                 </p>
+
+                {{-- Contact Us Button --}}
+                <a href="{{ route('home') }}#contact" class="btn btn-primary">
+                  Contact Us
+                </a>
 
                 {{-- Illustration --}}
                 <div class="mt-6">
@@ -70,5 +75,6 @@
   </div>
 
 @endsection
+
 
 
