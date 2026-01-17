@@ -7,6 +7,7 @@ use App\Http\Requests\V1\Accounts\StoreRequest;
 use App\Http\Requests\V1\Accounts\UpdateRequest;
 use App\Models\V1\Account;
 use App\Services\AccountService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -187,7 +188,37 @@ class AccountController extends Controller
   {
     $this->authorize('view',$account);
     $pageConfigs = ['myLayout' => 'horizontal'];
-    return view('accounts.positions',compact('account','pageConfigs'));
+    $response = $this->service->refresh($account);
+    if ($response['success']){
+      $data = $response['data'];
+      $balance = [
+        'available'   => (float) $data['availablecash'],
+        'utilised'    => (float) $data['utiliseddebits'],
+        'opening'     => (float) $data['net'],
+        'payin'       => (float) $data['availableintradaypayin'],
+        'payout'      => (float) $data['utilisedpayout'],
+        'collateral'  => (float) $data['collateral'],
+        'limit'       => (float) $data['availablelimitmargin'],
+        'm2m_r'       => (float) $data['m2mrealized'],
+        'm2m_u'       => (float) $data['m2munrealized'],
+        'updated_at'  => Carbon::now()->format('d M Y, h:i A'),
+      ];
+    } else {
+      $balance = [
+        'available' => 0.00,
+        'utilised'  => 0.00,
+        'opening'   => 0.00,
+        'payin'     => 0.00,
+        'payout'    => 0.00,
+        'collateral'=> 0.00,
+        'limit'     => 0.00,
+        'm2m_r'     => 0.00,
+        'm2m_u'     => 0.00,
+        'updated_at'=> $account->updated_at,
+      ];
+    }
+
+    return view('accounts.balance',compact('account','pageConfigs','balance'));
   }
 
   public function market(Account $account)
