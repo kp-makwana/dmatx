@@ -171,6 +171,13 @@
               <input type="number" step="0.01" class="form-control" id="om-price" name="price">
               <div class="invalid-feedback" id="om-price-error"></div>
             </div>
+            <div class="col-md-6">
+              <label class="form-label">Circuit</label>
+              <div class="alert alert-info d-flex justify-content-between align-items-center py-2 mb-0">
+                <span class="fw-semibold small">Range</span>
+                <span class="fw-semibold small" id="om-circuit">—</span>
+              </div>
+            </div>
             <div class="col-12 text-center mt-4">
               <button id="om-submit-btn"
                       type="submit"
