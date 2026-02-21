@@ -182,8 +182,13 @@ class AccountController extends Controller
   public function positions(Account $account)
   {
     $this->authorize('view',$account);
+    $response = $this->service->getPosition($account);
+    $positions = [];
+    if ($response['success']){
+      $positions = $response['data'] ?? (object)[];
+    }
     $pageConfigs = ['myLayout' => 'horizontal'];
-    return view('accounts.positions',compact('account','pageConfigs'));
+    return view('accounts.positions',compact('account','pageConfigs','positions'));
   }
 
   public function balance(Account $account)

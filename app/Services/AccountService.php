@@ -409,4 +409,9 @@ class AccountService
     $account->save();
     return ['success' => true,'message' =>'Account updated successfully'];
   }
+
+  public function getPosition($account)
+  {
+    return resolve(AngelService::class)->getPosition($account);
+  }
 }

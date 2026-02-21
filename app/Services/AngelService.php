@@ -12,10 +12,20 @@ class AngelService
 {
   protected Client $client;
   protected string $baseUrl = "https://apiconnect.angelone.in";
+  protected array $headers;
 
   public function __construct()
   {
     $this->client = new Client();
+    $this->headers = [
+      'Content-Type' => 'application/json',
+      'Accept' => 'application/json',
+      'X-UserType' => 'USER',
+      'X-SourceID' => 'WEB',
+      'X-ClientLocalIP' => request()->ip(),
+      'X-ClientPublicIP' => request()->ip(),
+      'X-MACAddress' => '00:00:00:00:00:00',
+    ];
   }
 
   /**
@@ -564,5 +574,32 @@ class AngelService
       'message' => $result['message'] ?? 'Order placement failed',
       'errorCode' => $result['errorCode'] ?? null,
     ];
+  }
+
+  public function getPosition($account)
+  {
+    $endpoint = $this->baseUrl . "/rest/secure/angelbroking/order/v1/getPosition";
+    $headers = [
+      ...$this->headers,
+      'X-PrivateKey' => $account->api_key,
+      'Authorization' => 'Bearer ' . $account->session_token,
+    ];
+    $response = $this->client->get($endpoint, [
+      'headers' => $headers
+    ]);
+    $result = json_decode($response->getBody(), true);
+    $data = $result['data'];
+    if ($result['status']) {
+      return ['success' => true, 'message' => 'Fetch all positions', 'data' => $data];
+    }
+    $errorCode = $result['errorCode'] ?? null;
+    if ($errorCode == 'AG8001') {
+      $refreshTokenResponse = $this->generateTokens($account);
+      if ($refreshTokenResponse['success']) {
+        $this->getPosition($account);
+      }
+    }
+    $account->save();
+    return ['success' => false, 'message' => 'Internal server error', 'data' => $account];
   }
 }
