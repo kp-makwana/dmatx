@@ -6,5 +6,12 @@
 @endphp
 
 @isset($configData['layout'])
-  @include('layouts.horizontalLayout')
+  @include(
+      $configData['layout'] === 'horizontal'
+          ? 'layouts.horizontalLayout'
+          : ($configData['layout'] === 'blank'
+              ? 'layouts.blankLayout'
+              : ($configData['layout'] === 'front'
+                  ? 'layouts.layoutFront'
+                  : 'layouts.contentNavbarLayout')))
 @endisset

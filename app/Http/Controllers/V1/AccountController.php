@@ -7,18 +7,20 @@ use App\Http\Requests\V1\Accounts\StoreRequest;
 use App\Http\Requests\V1\Accounts\UpdateRequest;
 use App\Models\V1\Account;
 use App\Services\AccountService;
+use App\Services\InstrumentsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 
 class AccountController extends Controller
 {
 
   protected AccountService $service;
+  protected InstrumentsService $instrumentsService;
 
-  public function __construct(AccountService $service)
+  public function __construct(AccountService $service,InstrumentsService $instrumentsService)
   {
     $this->service = $service;
+    $this->instrumentsService = $instrumentsService;
   }
   public function index(Request $request)
   {
@@ -221,10 +223,10 @@ class AccountController extends Controller
     return view('accounts.balance',compact('account','pageConfigs','balance'));
   }
 
-  public function market(Account $account)
+  public function market(Request $request,Account $account)
   {
     $this->authorize('view',$account);
-    $pageConfigs = ['myLayout' => 'horizontal'];
-    return view('accounts.market',compact('account','pageConfigs'));
+    $instruments = $this->instrumentsService->index($request,$account);
+    return view('accounts.market',[...$instruments]);
   }
 }
