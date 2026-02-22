@@ -102,7 +102,7 @@ class AngelService
         'error' => $success['message'],
       ])
       ->log('Angel login failed');
-    throw new AngelLoginException($success['message'] ?? 'Angel login failed', $account->id);
+    return ['success' => false, 'message' => 'Angel login failed'];
   }
 
   public function refreshAccount($validatedData, $account)
@@ -339,7 +339,7 @@ class AngelService
     if ($errorCode == 'AG8001') {
       $refreshTokenResponse = $this->generateTokens($account);
       if ($refreshTokenResponse['success']) {
-        $this->getAllHolding($account);
+        return $this->getAllHolding($account);
       }
     }
     $account->save();
