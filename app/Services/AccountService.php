@@ -325,7 +325,7 @@ class AccountService
   public function submitStepFive($account)
   {
     $smartApiLoginResponse = resolve(AngelSmartApiService::class)->smartApiLogin($account);
-    $finalResponse = ['success' => true,'message' => 'Something went wrong'];
+    $finalResponse = ['success' => false,'message' => 'Something went wrong'];
     if ($smartApiLoginResponse['status']){
       $data = $smartApiLoginResponse['data'];
       $account->smart_api_jwt_token = $data['jwtToken'];
